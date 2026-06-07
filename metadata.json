@@ -1,0 +1,8 @@
+{
+  "name": "Remix: Pharmacy POS \u0026 Admin Dashboard",
+  "description": "An interactive, feature-rich Pharmacy POS and Admin Management Dashboard built from a scanned workspace wireframe. Includes real-time billing/checkout, inventory, sales tracking, doctor directory, EOD settlement, deposit uploads, receipts management, and returns logging.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
