@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { Product, Customer, CartItem, Sale } from '../types';
 import { api } from '../services/api';
+import QRCode from 'react-qr-code';
 
 interface BillingWorkspaceProps {
   products: Product[];
@@ -57,6 +58,7 @@ export default function BillingWorkspace({
   // Checkout modal receipt structures
   const [checkedOutSale, setCheckedOutSale] = useState<Sale | null>(null);
   const [isInvoiceOpen, setIsInvoiceOpen] = useState(false);
+  const [isUpiModalOpen, setIsUpiModalOpen] = useState(false);
 
   // Collect distinct colors/labels for wireframe "Color" dropdown filter
   const colorsList = ['All', ...Array.from(new Set(products.map(p => p.color)))];
@@ -169,16 +171,10 @@ export default function BillingWorkspace({
   // Financial calculations
   const calculateSubtotal = () => cart.reduce((val, i) => val + (i.product.price * i.quantity), 0);
   const subtotal = calculateSubtotal();
-  const taxRate = 0.12; // 12% pharmaceutical tax rate (GST)
-  const taxAmount = subtotal * taxRate;
-  const grandTotal = subtotal + taxAmount;
+  const grandTotal = subtotal;
 
-  // Checkout process trigger
-  const handleCheckout = async () => {
-    if (cart.length === 0) {
-      alert('Your billing counter is empty! Please add products before checking out.');
-      return;
-    }
+  // Finalize DB saving and UI clearing
+  const finalizeCheckout = async () => {
 
     const currentCustomerName = selectedCustomer ? selectedCustomer.name : 'Walk-in Customer';
     const currentCustomerPhone = selectedCustomer ? selectedCustomer.phone : 'N/A';
@@ -240,6 +236,19 @@ export default function BillingWorkspace({
     } catch (err) {
       console.error(err);
       alert('Checkout failed! Could not reach the backend.');
+    }
+  };
+
+  const handleCheckout = () => {
+    if (cart.length === 0) {
+      alert('Your billing counter is empty! Please add products before checking out.');
+      return;
+    }
+
+    if (paymentMode === 'UPI') {
+      setIsUpiModalOpen(true);
+    } else {
+      finalizeCheckout();
     }
   };
 
@@ -342,10 +351,10 @@ export default function BillingWorkspace({
           {/* Feedback & active state indicator */}
           {lookupFeedback.message && (
             <div className={`text-xs p-3 rounded-xl border flex items-center gap-2 justify-between ${lookupFeedback.type === 'success'
-                ? 'bg-emerald-50/60 border-emerald-100 text-emerald-800'
-                : lookupFeedback.type === 'error'
-                  ? 'bg-red-50/60 border-red-100 text-red-800'
-                  : 'bg-slate-50 border-slate-200 text-slate-600'
+              ? 'bg-emerald-50/60 border-emerald-100 text-emerald-800'
+              : lookupFeedback.type === 'error'
+                ? 'bg-red-50/60 border-red-100 text-red-800'
+                : 'bg-slate-50 border-slate-200 text-slate-600'
               }`}>
               <p className="font-semibold">{lookupFeedback.message}</p>
               {selectedCustomer && (
@@ -583,11 +592,6 @@ export default function BillingWorkspace({
               <span>Subtotal price</span>
               <span className="font-mono font-semibold">₹{subtotal.toFixed(2)}</span>
             </div>
-            <div className="flex justify-between text-slate-500">
-              <span>Pharmacy GST Tax (12%)</span>
-              <span className="font-mono font-semibold">₹{taxAmount.toFixed(2)}</span>
-            </div>
-
             {selectedCustomer && selectedCustomer.outstandingBalance > 0 && (
               <div className="flex justify-between text-amber-600 bg-amber-500/5 px-2.5 py-1.5 rounded-lg border border-amber-500/10">
                 <span>Add past due balance</span>
@@ -611,8 +615,8 @@ export default function BillingWorkspace({
                 type="button"
                 onClick={() => setPaymentMode('Cash')}
                 className={`py-2 px-3 rounded-xl text-xs font-bold border transition flex items-center justify-center gap-2 ${paymentMode === 'Cash'
-                    ? 'bg-emerald-600 border-emerald-600 text-white shadow-sm'
-                    : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                  ? 'bg-emerald-600 border-emerald-600 text-white shadow-sm'
+                  : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
                   }`}
               >
                 Cash Drawer
@@ -621,8 +625,8 @@ export default function BillingWorkspace({
                 type="button"
                 onClick={() => setPaymentMode('UPI')}
                 className={`py-2 px-3 rounded-xl text-xs font-bold border transition flex items-center justify-center gap-2 ${paymentMode === 'UPI'
-                    ? 'bg-emerald-600 border-emerald-600 text-white shadow-sm'
-                    : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                  ? 'bg-emerald-600 border-emerald-600 text-white shadow-sm'
+                  : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
                   }`}
               >
                 UPI QR Gateway
@@ -634,8 +638,8 @@ export default function BillingWorkspace({
             onClick={handleCheckout}
             disabled={cart.length === 0}
             className={`w-full py-3.5 rounded-xl text-sm font-bold shadow-md transition-all flex items-center justify-center gap-2 ${cart.length === 0
-                ? 'bg-slate-100 border border-slate-200 text-slate-400 cursor-not-allowed'
-                : 'bg-emerald-600 hover:bg-emerald-700 text-white active:scale-[0.99] shadow-emerald-600/15'
+              ? 'bg-slate-100 border border-slate-200 text-slate-400 cursor-not-allowed'
+              : 'bg-emerald-600 hover:bg-emerald-700 text-white active:scale-[0.99] shadow-emerald-600/15'
               }`}
           >
             <Printer className="w-4 h-4" />
@@ -701,17 +705,9 @@ export default function BillingWorkspace({
                 ))}
               </div>
 
-              {/* Tax Invoice totalizer */}
+              {/* Invoice totalizer */}
               <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-xs space-y-2">
-                <div className="flex justify-between text-slate-500">
-                  <span>Subtotal sum</span>
-                  <span className="font-mono">₹{(checkedOutSale.total / 1.12).toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between text-slate-500">
-                  <span>GST Tax Breakdown</span>
-                  <span className="font-mono">₹{(checkedOutSale.total - (checkedOutSale.total / 1.12)).toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between text-sm font-bold text-slate-800 border-t border-dashed border-slate-200 pt-2 mt-1">
+                <div className="flex justify-between text-sm font-bold text-slate-800 pt-2 mt-1">
                   <span>Final Net Paid</span>
                   <span className="font-mono text-emerald-600 text-base">₹{checkedOutSale.total.toFixed(2)}</span>
                 </div>
@@ -741,6 +737,65 @@ export default function BillingWorkspace({
                 className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-3 rounded-xl transition focus:ring-2 focus:ring-emerald-500"
               >
                 Done / Close POS
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* UPI Payment Modal (P2P Simulation Mode) */}
+      {isUpiModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-3xl max-w-sm w-full shadow-2xl border border-slate-100 overflow-hidden transform scale-100 transition-all">
+
+            {/* Header */}
+            <div className="bg-slate-900 text-white p-5 text-center relative">
+              <h4 className="font-bold text-lg tracking-tight">Scan to Pay</h4>
+              <p className="text-[11px] text-slate-400 mt-0.5">UPI P2P Gateway</p>
+
+              <button
+                onClick={() => setIsUpiModalOpen(false)}
+                className="absolute top-4 right-4 text-slate-400 hover:text-white text-xs font-bold bg-slate-800 rounded-full w-6 h-6 flex items-center justify-center"
+              >
+                &times;
+              </button>
+            </div>
+
+            {/* QR Body */}
+            <div className="p-6 flex flex-col items-center space-y-5">
+              <div className="text-center">
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Amount to Pay</span>
+                <div className="font-mono text-3xl font-bold text-emerald-600 mt-1">
+                  ₹{(grandTotal + (selectedCustomer && selectedCustomer.outstandingBalance > 0 ? selectedCustomer.outstandingBalance : 0)).toFixed(2)}
+                </div>
+              </div>
+
+              <div className="bg-white p-3 rounded-2xl border-2 border-dashed border-emerald-100">
+                <QRCode
+                  value={`upi://pay?pa=test@upi&pn=GowMithra_Pharmacy&am=${(grandTotal + (selectedCustomer && selectedCustomer.outstandingBalance > 0 ? selectedCustomer.outstandingBalance : 0)).toFixed(2)}&cu=INR`}
+                  size={200}
+                  level="H"
+                />
+              </div>
+
+              <div className="text-center">
+                <p className="text-xs font-semibold text-slate-600">Waiting for customer payment...</p>
+                <p className="text-[10px] text-slate-400 mt-1">Ask the customer to scan this QR with GPay, PhonePe, or Paytm.</p>
+              </div>
+            </div>
+
+            {/* Footer Action */}
+            <div className="p-5 border-t border-slate-100 bg-slate-50 flex gap-2">
+              <button
+                onClick={() => {
+                  setIsUpiModalOpen(false);
+                  finalizeCheckout();
+                }}
+                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm py-3.5 rounded-xl transition flex items-center justify-center gap-2 shadow-md shadow-emerald-600/20"
+              >
+                <Check className="w-4 h-4" />
+                Verify Payment & Print Receipt
               </button>
             </div>
 
