@@ -7,7 +7,7 @@ import {
   BarChart3, 
   Stethoscope, 
   Receipt,
-  HeartPulse
+  Activity
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -30,13 +30,14 @@ export default function Sidebar({ activeTab, setActiveTab, pendingApprovalsCount
   return (
     <aside id="sidebar-container" className="w-80 bg-slate-900 text-slate-100 flex flex-col border-r border-slate-800">
       {/* Brand Header */}
-      <div id="sidebar-header" className="p-6 border-b border-slate-800 flex items-center gap-3">
-        <div id="brand-logo-badge" className="p-2.5 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20">
-          <HeartPulse className="w-6 h-6 animate-pulse" />
+      <div id="sidebar-header" className="p-6 border-b border-slate-800 flex items-center gap-4">
+        <div id="brand-logo-badge" className="relative flex flex-shrink-0 items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 shadow-lg shadow-emerald-500/30 group cursor-pointer overflow-hidden">
+          <div className="absolute inset-0 bg-white/20 blur-md rounded-full transform scale-0 group-hover:scale-150 transition-transform duration-500"></div>
+          <Activity className="w-6 h-6 text-white relative z-10 transition-transform duration-300 group-hover:rotate-12" />
         </div>
-        <div>
-          <h1 id="brand-name" className="font-semibold text-lg leading-tight text-white tracking-tight">RxPharmacy</h1>
-          <span id="brand-tagline" className="text-xs text-slate-400 font-medium">POS & Store Management</span>
+        <div className="flex flex-col min-w-0">
+          <h1 id="brand-name" className="font-bold text-2xl leading-tight bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent tracking-tight truncate">MediSync</h1>
+          <span id="brand-tagline" className="text-[10px] text-emerald-400 font-bold uppercase tracking-widest mt-0.5 truncate">Pharmacy ERP</span>
         </div>
       </div>
 

@@ -102,17 +102,29 @@ export default function App() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [invRes, salesRes, setRes, retRes] = await Promise.all([
+        const [invRes, salesRes, setRes, retRes, doctorsRes] = await Promise.all([
           api.get('/pharmacy/inventory').catch(() => null),
           api.get('/pharmacy/sales').catch(() => null),
           api.get('/pharmacy/settlements').catch(() => null),
-          api.get('/pharmacy/returns').catch(() => null)
+          api.get('/pharmacy/returns').catch(() => null),
+          api.get('/area-doctors/public').catch(() => null)
         ]);
 
         if (invRes?.success && invRes.data.length > 0) setProducts(invRes.data);
         if (salesRes?.success && salesRes.data.length > 0) setSales(salesRes.data);
         if (setRes?.success && setRes.data.length > 0) setPendingApprovals(setRes.data);
         if (retRes?.success && retRes.data.length > 0) setReturns(retRes.data);
+        if (doctorsRes?.data && doctorsRes.data.length > 0) {
+          const mappedDoctors = doctorsRes.data.map((d: any) => ({
+            id: String(d.doctor_id || d.id),
+            name: d.full_name,
+            specialty: 'Area Doctor',
+            phone: d.mobile,
+            availability: 'Available',
+            clinic: d.address || 'Public Clinic'
+          }));
+          setDoctors(mappedDoctors);
+        }
       } catch (err) {
         console.error("Failed to fetch initial backend data", err);
       }

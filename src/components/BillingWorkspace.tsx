@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
-import { 
-  User, 
-  Search, 
-  Plus, 
-  Minus, 
-  Trash2, 
-  Printer, 
-  FileCheck2, 
-  Check, 
-  UserPlus, 
-  Eye, 
+import {
+  User,
+  Search,
+  Plus,
+  Minus,
+  Trash2,
+  Printer,
+  FileCheck2,
+  Check,
+  UserPlus,
+  Eye,
   Sparkles,
   RefreshCw,
   ShoppingBag
@@ -26,20 +26,20 @@ interface BillingWorkspaceProps {
   setSales: React.Dispatch<React.SetStateAction<Sale[]>>;
 }
 
-export default function BillingWorkspace({ 
-  products, 
-  setProducts, 
-  customers, 
-  setCustomers, 
-  sales, 
-  setSales 
+export default function BillingWorkspace({
+  products,
+  setProducts,
+  customers,
+  setCustomers,
+  sales,
+  setSales
 }: BillingWorkspaceProps) {
-  
+
   // Billing customer lookup states
   const [phoneSearch, setPhoneSearch] = useState('');
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [lookupFeedback, setLookupFeedback] = useState<{ type: 'success' | 'error' | 'info' | null; message: string }>({ type: null, message: '' });
-  
+
   // For new customer instant register inside billing panel
   const [newCustName, setNewCustName] = useState('');
   const [newCustPhone, setNewCustPhone] = useState('');
@@ -69,22 +69,22 @@ export default function BillingWorkspace({
     }
 
     const cleaned = phoneSearch.trim().toLowerCase();
-    const found = customers.find(c => 
+    const found = customers.find(c =>
       c.phone.includes(cleaned) || c.name.toLowerCase().includes(cleaned)
     );
 
     if (found) {
       setSelectedCustomer(found);
       setPhoneSearch(found.phone); // auto-complete input with canonical phone
-      setLookupFeedback({ 
-        type: 'success', 
-        message: `Successfully loaded database file for: ${found.name}` 
+      setLookupFeedback({
+        type: 'success',
+        message: `Successfully loaded database file for: ${found.name}`
       });
     } else {
       setSelectedCustomer(null);
-      setLookupFeedback({ 
-        type: 'error', 
-        message: 'No record found under that name/phone. You can register them below.' 
+      setLookupFeedback({
+        type: 'error',
+        message: 'No record found under that name/phone. You can register them below.'
       });
     }
   };
@@ -127,9 +127,9 @@ export default function BillingWorkspace({
           alert(`Insufficient physical stock of ${product.name} (Max: ${product.stock}).`);
           return prev;
         }
-        return prev.map(item => 
-          item.product.id === product.id 
-            ? { ...item, quantity: item.quantity + 1 } 
+        return prev.map(item =>
+          item.product.id === product.id
+            ? { ...item, quantity: item.quantity + 1 }
             : item
         );
       }
@@ -224,8 +224,8 @@ export default function BillingWorkspace({
 
       // Update outstanding customer balance if any
       if (selectedCustomer && selectedCustomer.outstandingBalance > 0) {
-        setCustomers(prev => prev.map(c => 
-          c.id === selectedCustomer.id 
+        setCustomers(prev => prev.map(c =>
+          c.id === selectedCustomer.id
             ? { ...c, outstandingBalance: 0.00 }
             : c
         ));
@@ -245,18 +245,18 @@ export default function BillingWorkspace({
 
   // Filtered list of products
   const filteredProducts = products.filter(p => {
-    const matchesSearch = (p.name || '').toLowerCase().includes((productQuery || '').toLowerCase()) || 
-                          (p.code || '').toLowerCase().includes((productQuery || '').toLowerCase());
+    const matchesSearch = (p.name || '').toLowerCase().includes((productQuery || '').toLowerCase()) ||
+      (p.code || '').toLowerCase().includes((productQuery || '').toLowerCase());
     const matchesColor = colorFilter === 'All' || p.color === colorFilter;
     return matchesSearch && matchesColor;
   });
 
   return (
     <div id="billing-workspace-grid" className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-      
+
       {/* LEFT: Customer & Products Selection Workspace (7 Cols) */}
       <div className="lg:col-span-7 space-y-6">
-        
+
         {/* Customer Fetch Data Box */}
         <div className="bg-white border border-slate-200/80 p-5 rounded-2xl shadow-sm space-y-4">
           <div className="flex justify-between items-center">
@@ -264,7 +264,7 @@ export default function BillingWorkspace({
               <User className="w-4 h-4 text-emerald-500" />
               1. Customer Ledger Lookup
             </h3>
-            <button 
+            <button
               onClick={() => setShowQuickRegister(!showQuickRegister)}
               className="text-xs text-emerald-600 hover:text-emerald-700 font-semibold flex items-center gap-1 hover:underline"
             >
@@ -277,40 +277,40 @@ export default function BillingWorkspace({
             <form onSubmit={handleQuickRegister} className="bg-slate-50/70 rounded-xl p-4 border border-dashed border-slate-200 space-y-3">
               <p className="text-xs font-bold text-slate-600">Register New Customer Profile</p>
               <div className="grid grid-cols-3 gap-3">
-                <input 
-                  type="text" 
-                  placeholder="Full Name" 
+                <input
+                  type="text"
+                  placeholder="Full Name"
                   value={newCustName}
                   onChange={(e) => setNewCustName(e.target.value)}
                   className="bg-white border border-slate-200 rounded-lg p-2 text-xs focus:ring-1 focus:ring-emerald-500 outline-none"
                   required
                 />
-                <input 
-                  type="text" 
-                  placeholder="Primary Phone" 
+                <input
+                  type="text"
+                  placeholder="Primary Phone"
                   value={newCustPhone}
                   onChange={(e) => setNewCustPhone(e.target.value)}
                   className="bg-white border border-slate-200 rounded-lg p-2 text-xs focus:ring-1 focus:ring-emerald-500 outline-none"
                   required
                 />
-                <input 
-                  type="email" 
-                  placeholder="Email ID (optional)" 
+                <input
+                  type="email"
+                  placeholder="Email ID (optional)"
                   value={newCustEmail}
                   onChange={(e) => setNewCustEmail(e.target.value)}
                   className="bg-white border border-slate-200 rounded-lg p-2 text-xs focus:ring-1 focus:ring-emerald-500 outline-none"
                 />
               </div>
               <div className="flex justify-end gap-2 pt-1">
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   onClick={() => setShowQuickRegister(false)}
                   className="px-3 py-1.5 text-[11px] font-semibold text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition"
                 >
                   Cancel
                 </button>
-                <button 
-                  type="submit" 
+                <button
+                  type="submit"
                   className="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-1.5 text-[11px] font-semibold rounded-lg transition"
                 >
                   Register Profile
@@ -320,16 +320,16 @@ export default function BillingWorkspace({
           ) : (
             <div className="flex gap-2">
               <div className="relative flex-1">
-                <input 
-                  type="text" 
-                  placeholder="Search customer records (e.g. Pranay, Bob, or Phone Number)..." 
+                <input
+                  type="text"
+                  placeholder="Search customer records (e.g. Pranay, Bob, or Phone Number)..."
                   value={phoneSearch}
                   onChange={(e) => setPhoneSearch(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleFetchCustomer()}
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-4 text-xs font-medium focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition"
                 />
               </div>
-              <button 
+              <button
                 onClick={handleFetchCustomer}
                 className="bg-slate-800 hover:bg-slate-900 text-white font-semibold text-xs px-5 rounded-xl flex items-center gap-1.5 transition whitespace-nowrap active:scale-[0.98]"
               >
@@ -341,16 +341,15 @@ export default function BillingWorkspace({
 
           {/* Feedback & active state indicator */}
           {lookupFeedback.message && (
-            <div className={`text-xs p-3 rounded-xl border flex items-center gap-2 justify-between ${
-              lookupFeedback.type === 'success' 
-                ? 'bg-emerald-50/60 border-emerald-100 text-emerald-800' 
-                : lookupFeedback.type === 'error' 
-                ? 'bg-red-50/60 border-red-100 text-red-800' 
-                : 'bg-slate-50 border-slate-200 text-slate-600'
-            }`}>
+            <div className={`text-xs p-3 rounded-xl border flex items-center gap-2 justify-between ${lookupFeedback.type === 'success'
+                ? 'bg-emerald-50/60 border-emerald-100 text-emerald-800'
+                : lookupFeedback.type === 'error'
+                  ? 'bg-red-50/60 border-red-100 text-red-800'
+                  : 'bg-slate-50 border-slate-200 text-slate-600'
+              }`}>
               <p className="font-semibold">{lookupFeedback.message}</p>
               {selectedCustomer && (
-                <button 
+                <button
                   onClick={() => {
                     setSelectedCustomer(null);
                     setPhoneSearch('');
@@ -395,20 +394,20 @@ export default function BillingWorkspace({
               <ShoppingBag className="w-4 h-4 text-emerald-500" />
               2. Pharmacy Medicine Catalog
             </h3>
-            
+
             {/* Direct match of search & "Color" filters in layout drawing */}
             <div className="flex items-center gap-2">
               <div className="relative">
                 <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   placeholder="Search medicine name / SKU..."
                   value={productQuery}
                   onChange={(e) => setProductQuery(e.target.value)}
                   className="bg-slate-50 border border-slate-200 rounded-lg py-1.5 pl-8 pr-3 text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-emerald-500 w-44"
                 />
               </div>
-              <select 
+              <select
                 value={colorFilter}
                 onChange={(e) => setColorFilter(e.target.value)}
                 className="bg-slate-50 border border-slate-200 rounded-lg py-1.5 px-2.5 text-xs focus:bg-white outline-none font-semibold text-slate-600"
@@ -431,15 +430,15 @@ export default function BillingWorkspace({
               filteredProducts.map((p) => {
                 const cartQty = cart.find(i => i.product.id === p.id)?.quantity || 0;
                 const isOutOfStock = p.stock <= 0;
-                
+
                 return (
-                  <div 
-                    key={p.id} 
+                  <div
+                    key={p.id}
                     className="p-4 rounded-xl border border-slate-200 hover:border-emerald-500/20 hover:bg-emerald-500/[0.01] transition-all bg-white relative flex flex-col justify-between group"
                   >
                     <div>
                       <div className="flex justify-between items-start gap-1">
-                        <span 
+                        <span
                           className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full"
                           style={{
                             backgroundColor: `${(p.color || 'White').toLowerCase() === 'white' ? '#f1f5f9' : (p.color || 'White').toLowerCase()}15`,
@@ -451,7 +450,7 @@ export default function BillingWorkspace({
                         </span>
                         <span className="text-[10px] font-mono font-medium text-slate-400">{p.code}</span>
                       </div>
-                      
+
                       <h4 className="font-bold text-slate-800 text-sm mt-2">{p.name}</h4>
                       <p className="text-[11px] text-slate-400 mt-0.5">{p.category}</p>
                     </div>
@@ -484,9 +483,8 @@ export default function BillingWorkspace({
 
                     {/* Stock Alert Bubble */}
                     <div className="absolute top-2.5 right-2.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
-                        p.stock < 100 ? 'bg-red-50 text-red-600 border border-red-100' : 'bg-slate-50 text-slate-500'
-                      }`}>
+                      <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${p.stock < 100 ? 'bg-red-50 text-red-600 border border-red-100' : 'bg-slate-50 text-slate-500'
+                        }`}>
                         Stock: {p.stock}
                       </span>
                     </div>
@@ -500,7 +498,7 @@ export default function BillingWorkspace({
 
       {/* RIGHT: Selected Order Billing Basket (5 Cols) */}
       <div className="lg:col-span-5 bg-white border border-slate-200/80 rounded-2xl shadow-sm flex flex-col h-[670px] justify-between overflow-hidden">
-        
+
         {/* Cart Title & Header */}
         <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
           <div>
@@ -511,7 +509,7 @@ export default function BillingWorkspace({
             <p className="text-[11px] text-slate-400 mt-0.5">Counter Terminal #019</p>
           </div>
           {cart.length > 0 && (
-            <button 
+            <button
               onClick={handleResetWorkspace}
               className="text-[10px] text-red-500 hover:text-red-700 font-bold transition flex items-center gap-1"
             >
@@ -531,8 +529,8 @@ export default function BillingWorkspace({
             </div>
           ) : (
             cart.map((item) => (
-              <div 
-                key={item.product.id} 
+              <div
+                key={item.product.id}
                 className="flex justify-between items-center gap-4 border-b border-dashed border-slate-100 pb-3.5 last:border-0 last:pb-0"
               >
                 <div className="flex-1 min-w-0">
@@ -544,7 +542,7 @@ export default function BillingWorkspace({
 
                 {/* Counter Actions */}
                 <div className="flex items-center gap-2 flex-shrink-0">
-                  <button 
+                  <button
                     onClick={() => handleUpdateQuantity(item.product.id, -1)}
                     className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-500 hover:text-slate-800 transition active:scale-95 border border-slate-100"
                   >
@@ -553,7 +551,7 @@ export default function BillingWorkspace({
                   <span className="font-mono font-bold text-xs w-6 text-center text-slate-800">
                     {item.quantity}
                   </span>
-                  <button 
+                  <button
                     onClick={() => handleUpdateQuantity(item.product.id, 1)}
                     className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-500 hover:text-slate-800 transition active:scale-95 border border-slate-100"
                   >
@@ -566,7 +564,7 @@ export default function BillingWorkspace({
                   <p className="font-mono font-bold text-slate-800 text-xs">
                     ₹{(item.product.price * item.quantity).toFixed(2)}
                   </p>
-                  <button 
+                  <button
                     onClick={() => handleRemoveItem(item.product.id)}
                     className="text-[10px] text-slate-400 hover:text-red-500 transition mt-0.5"
                   >
@@ -589,7 +587,7 @@ export default function BillingWorkspace({
               <span>Pharmacy GST Tax (12%)</span>
               <span className="font-mono font-semibold">₹{taxAmount.toFixed(2)}</span>
             </div>
-            
+
             {selectedCustomer && selectedCustomer.outstandingBalance > 0 && (
               <div className="flex justify-between text-amber-600 bg-amber-500/5 px-2.5 py-1.5 rounded-lg border border-amber-500/10">
                 <span>Add past due balance</span>
@@ -612,22 +610,20 @@ export default function BillingWorkspace({
               <button
                 type="button"
                 onClick={() => setPaymentMode('Cash')}
-                className={`py-2 px-3 rounded-xl text-xs font-bold border transition flex items-center justify-center gap-2 ${
-                  paymentMode === 'Cash'
+                className={`py-2 px-3 rounded-xl text-xs font-bold border transition flex items-center justify-center gap-2 ${paymentMode === 'Cash'
                     ? 'bg-emerald-600 border-emerald-600 text-white shadow-sm'
                     : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-                }`}
+                  }`}
               >
                 Cash Drawer
               </button>
               <button
                 type="button"
                 onClick={() => setPaymentMode('UPI')}
-                className={`py-2 px-3 rounded-xl text-xs font-bold border transition flex items-center justify-center gap-2 ${
-                  paymentMode === 'UPI'
+                className={`py-2 px-3 rounded-xl text-xs font-bold border transition flex items-center justify-center gap-2 ${paymentMode === 'UPI'
                     ? 'bg-emerald-600 border-emerald-600 text-white shadow-sm'
                     : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-                }`}
+                  }`}
               >
                 UPI QR Gateway
               </button>
@@ -637,11 +633,10 @@ export default function BillingWorkspace({
           <button
             onClick={handleCheckout}
             disabled={cart.length === 0}
-            className={`w-full py-3.5 rounded-xl text-sm font-bold shadow-md transition-all flex items-center justify-center gap-2 ${
-              cart.length === 0
+            className={`w-full py-3.5 rounded-xl text-sm font-bold shadow-md transition-all flex items-center justify-center gap-2 ${cart.length === 0
                 ? 'bg-slate-100 border border-slate-200 text-slate-400 cursor-not-allowed'
                 : 'bg-emerald-600 hover:bg-emerald-700 text-white active:scale-[0.99] shadow-emerald-600/15'
-            }`}
+              }`}
           >
             <Printer className="w-4 h-4" />
             Complete Checkout & Print Invoice
@@ -653,7 +648,7 @@ export default function BillingWorkspace({
       {isInvoiceOpen && checkedOutSale && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-100 overflow-hidden transform scale-100 transition-all">
-            
+
             {/* Header */}
             <div className="bg-slate-900 text-white p-6 text-center space-y-1 relative">
               <div className="mx-auto w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/20 mb-2">
@@ -661,8 +656,8 @@ export default function BillingWorkspace({
               </div>
               <h4 className="font-bold text-lg tracking-tight">RxPharmacy Invoice</h4>
               <p className="text-[11px] text-slate-400">Reconciliation Receipt: #{checkedOutSale.id}</p>
-              
-              <button 
+
+              <button
                 onClick={() => setIsInvoiceOpen(false)}
                 className="absolute top-4 right-4 text-slate-400 hover:text-white text-xs font-bold bg-slate-800 rounded-full w-6 h-6 flex items-center justify-center"
               >
@@ -748,7 +743,7 @@ export default function BillingWorkspace({
                 Done / Close POS
               </button>
             </div>
-            
+
           </div>
         </div>
       )}
