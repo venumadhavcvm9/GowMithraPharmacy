@@ -14,6 +14,7 @@ import {
   X
 } from 'lucide-react';
 import { PendingApproval, Sale } from '../types';
+import { api } from '../services/api';
 
 interface EodSettlementProps {
   sales: Sale[];
@@ -84,7 +85,7 @@ export default function EodSettlement({ sales, pendingApprovals, setPendingAppro
   };
 
   // Dispatch Cash Deposit to Pending Manager Approvals table
-  const handleSubmitDeposit = (e: React.FormEvent) => {
+  const handleSubmitDeposit = async (e: React.FormEvent) => {
     e.preventDefault();
     const amt = parseFloat(depositAmount);
     if (isNaN(amt) || amt <= 0) {
@@ -94,30 +95,38 @@ export default function EodSettlement({ sales, pendingApprovals, setPendingAppro
 
     const defaultSlip = 'https://images.unsplash.com/photo-1554415707-6e8cfc93fe23?auto=format&fit=crop&q=80&w=600';
     
-    const depositLog: PendingApproval = {
-      id: `APP-${Math.floor(200 + Math.random() * 800)}`,
-      saleTitle: `EOD Settlement - Cash Transfer Summary`,
-      amount: amt,
-      receiptUrl: receiptImage || defaultSlip,
-      reason: depositReason,
-      status: 'Pending',
-      timestamp: new Date().toLocaleString()
-    };
+    try {
+      const response = await api.post('/pharmacy/settlements', {
+        saleTitle: `EOD Settlement - Cash Transfer Summary`,
+        amount: amt,
+        receiptUrl: receiptImage || defaultSlip,
+        reason: depositReason
+      });
 
-    setPendingApprovals(prev => [depositLog, ...prev]);
-    setSuccessMsg(`Deposited Cash of ₹${amt.toFixed(2)} filed successfully! Awaiting manager approval.`);
-    setDepositAmount('');
-    setReceiptImage(null);
+      const dbSettlement = response.data;
+      const depositLog: PendingApproval = {
+        id: dbSettlement.settlement_id,
+        saleTitle: dbSettlement.sale_title,
+        amount: parseFloat(dbSettlement.amount),
+        receiptUrl: dbSettlement.receipt_url,
+        reason: dbSettlement.reason,
+        status: dbSettlement.status,
+        timestamp: new Date(dbSettlement.createdAt).toLocaleString()
+      };
 
-    setTimeout(() => setSuccessMsg(''), 4000);
+      setPendingApprovals(prev => [depositLog, ...prev]);
+      setSuccessMsg(`Deposited Cash of ₹${amt.toFixed(2)} filed successfully! Awaiting manager approval.`);
+      setDepositAmount('');
+      setReceiptImage(null);
+
+      setTimeout(() => setSuccessMsg(''), 4000);
+    } catch (err) {
+      console.error(err);
+      alert('Failed to dispatch deposit to the master vault.');
+    }
   };
 
-  // Update Status callbacks for owner management
-  const handleUpdateStatus = (id: string, nextStatus: 'Approved' | 'Rejected') => {
-    setPendingApprovals(prev => prev.map(p => 
-      p.id === id ? { ...p, status: nextStatus } : p
-    ));
-  };
+
 
   return (
     <div id="eod-settlement-tabs" className="space-y-6">
@@ -351,22 +360,9 @@ export default function EodSettlement({ sales, pendingApprovals, setPendingAppro
                   </td>
                   <td className="py-3.5 text-right font-semibold">
                     {p.status === 'Pending' ? (
-                      <div className="flex gap-2 justify-end">
-                        <button
-                          type="button"
-                          onClick={() => handleUpdateStatus(p.id, 'Approved')}
-                          className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition active:scale-95"
-                        >
-                          Approve Check
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleUpdateStatus(p.id, 'Rejected')}
-                          className="bg-red-50 hover:bg-red-100 text-red-600 border border-red-100 font-bold text-xs px-3 py-1.5 rounded-lg transition active:scale-95"
-                        >
-                          Reject
-                        </button>
-                      </div>
+                      <span className="text-[10px] text-amber-500 tracking-wider flex items-center gap-1 justify-end">
+                        <TrendingUp className="w-3 h-3" /> Awaiting HQ
+                      </span>
                     ) : (
                       <span className="text-[10px] text-slate-400 tracking-wider">Locked State</span>
                     )}
