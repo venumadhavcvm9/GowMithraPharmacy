@@ -25,6 +25,7 @@ interface BillingWorkspaceProps {
   setCustomers: React.Dispatch<React.SetStateAction<Customer[]>>;
   sales: Sale[];
   setSales: React.Dispatch<React.SetStateAction<Sale[]>>;
+  onNavigateToRegister?: () => void;
 }
 
 export default function BillingWorkspace({
@@ -33,19 +34,14 @@ export default function BillingWorkspace({
   customers,
   setCustomers,
   sales,
-  setSales
+  setSales,
+  onNavigateToRegister
 }: BillingWorkspaceProps) {
 
   // Billing customer lookup states
   const [phoneSearch, setPhoneSearch] = useState('');
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [lookupFeedback, setLookupFeedback] = useState<{ type: 'success' | 'error' | 'info' | null; message: string }>({ type: null, message: '' });
-
-  // For new customer instant register inside billing panel
-  const [newCustName, setNewCustName] = useState('');
-  const [newCustPhone, setNewCustPhone] = useState('');
-  const [newCustEmail, setNewCustEmail] = useState('');
-  const [showQuickRegister, setShowQuickRegister] = useState(false);
 
   // Catalog filtering states
   const [productQuery, setProductQuery] = useState('');
@@ -91,29 +87,6 @@ export default function BillingWorkspace({
     }
   };
 
-  // Quick Customer Registration inside billing screen
-  const handleQuickRegister = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newCustName || !newCustPhone) {
-      alert('Kindly supply Name and Phone Number.');
-      return;
-    }
-    const newCust: Customer = {
-      id: `c_${Date.now()}`,
-      name: newCustName,
-      phone: newCustPhone,
-      email: newCustEmail || 'walkin@rxpharmacy.net',
-      outstandingBalance: 0.00
-    };
-    setCustomers(prev => [...prev, newCust]);
-    setSelectedCustomer(newCust);
-    setPhoneSearch(newCust.phone);
-    setShowQuickRegister(false);
-    setNewCustName('');
-    setNewCustPhone('');
-    setNewCustEmail('');
-    setLookupFeedback({ type: 'success', message: `Registered & loaded customer: ${newCust.name}` });
-  };
 
   // Add Item to active Order list
   const handleAddToCart = (product: Product) => {
@@ -274,60 +247,15 @@ export default function BillingWorkspace({
               1. Customer Ledger Lookup
             </h3>
             <button
-              onClick={() => setShowQuickRegister(!showQuickRegister)}
+              onClick={() => onNavigateToRegister && onNavigateToRegister()}
               className="text-xs text-emerald-600 hover:text-emerald-700 font-semibold flex items-center gap-1 hover:underline"
             >
               <UserPlus className="w-3.5 h-3.5" />
-              Quick Register
+              Register Customer
             </button>
           </div>
 
-          {showQuickRegister ? (
-            <form onSubmit={handleQuickRegister} className="bg-slate-50/70 rounded-xl p-4 border border-dashed border-slate-200 space-y-3">
-              <p className="text-xs font-bold text-slate-600">Register New Customer Profile</p>
-              <div className="grid grid-cols-3 gap-3">
-                <input
-                  type="text"
-                  placeholder="Full Name"
-                  value={newCustName}
-                  onChange={(e) => setNewCustName(e.target.value)}
-                  className="bg-white border border-slate-200 rounded-lg p-2 text-xs focus:ring-1 focus:ring-emerald-500 outline-none"
-                  required
-                />
-                <input
-                  type="text"
-                  placeholder="Primary Phone"
-                  value={newCustPhone}
-                  onChange={(e) => setNewCustPhone(e.target.value)}
-                  className="bg-white border border-slate-200 rounded-lg p-2 text-xs focus:ring-1 focus:ring-emerald-500 outline-none"
-                  required
-                />
-                <input
-                  type="email"
-                  placeholder="Email ID (optional)"
-                  value={newCustEmail}
-                  onChange={(e) => setNewCustEmail(e.target.value)}
-                  className="bg-white border border-slate-200 rounded-lg p-2 text-xs focus:ring-1 focus:ring-emerald-500 outline-none"
-                />
-              </div>
-              <div className="flex justify-end gap-2 pt-1">
-                <button
-                  type="button"
-                  onClick={() => setShowQuickRegister(false)}
-                  className="px-3 py-1.5 text-[11px] font-semibold text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-1.5 text-[11px] font-semibold rounded-lg transition"
-                >
-                  Register Profile
-                </button>
-              </div>
-            </form>
-          ) : (
-            <div className="flex gap-2">
+          <div className="flex gap-2">
               <div className="relative flex-1">
                 <input
                   type="text"
@@ -346,8 +274,6 @@ export default function BillingWorkspace({
                 Fetch Data
               </button>
             </div>
-          )}
-
           {/* Feedback & active state indicator */}
           {lookupFeedback.message && (
             <div className={`text-xs p-3 rounded-xl border flex items-center gap-2 justify-between ${lookupFeedback.type === 'success'
@@ -506,7 +432,7 @@ export default function BillingWorkspace({
       </div>
 
       {/* RIGHT: Selected Order Billing Basket (5 Cols) */}
-      <div className="lg:col-span-5 bg-white border border-slate-200/80 rounded-2xl shadow-sm flex flex-col h-[670px] justify-between overflow-hidden">
+      <div className="lg:col-span-5 bg-white border border-slate-200/80 rounded-2xl shadow-sm flex flex-col h-[520px] justify-between overflow-hidden">
 
         {/* Cart Title & Header */}
         <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
@@ -658,7 +584,7 @@ export default function BillingWorkspace({
               <div className="mx-auto w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/20 mb-2">
                 <Check className="w-5 h-5" />
               </div>
-              <h4 className="font-bold text-lg tracking-tight">RxPharmacy Invoice</h4>
+              <h4 className="font-bold text-lg tracking-tight">GowMithra Pharmacy Invoice</h4>
               <p className="text-[11px] text-slate-400">Reconciliation Receipt: #{checkedOutSale.id}</p>
 
               <button

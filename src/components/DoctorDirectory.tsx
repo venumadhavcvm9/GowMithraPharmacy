@@ -63,7 +63,7 @@ export default function DoctorDirectory({ doctors, setDoctors }: DoctorDirectory
             <p className="text-xs text-slate-400 font-medium">Verify credentials, cross-reference prescriptions, or consult regional medical staff.</p>
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
             {/* Search */}
             <div className="relative">
               <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -72,7 +72,7 @@ export default function DoctorDirectory({ doctors, setDoctors }: DoctorDirectory
                 placeholder="Search specialty, name, or clinic..." 
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="bg-slate-50 border border-slate-200 rounded-lg py-1.5 pl-8 pr-3 text-xs w-52 focus:bg-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                className="bg-slate-50 border border-slate-200 rounded-lg py-1.5 pl-8 pr-3 text-xs w-64 focus:bg-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
               />
             </div>
 

@@ -173,6 +173,7 @@ export default function App() {
             setCustomers={setCustomers}
             sales={sales}
             setSales={setSales}
+            onNavigateToRegister={() => setActiveTab('new-user')}
           />
         );
       case 'returns':
@@ -250,7 +251,7 @@ export default function App() {
           <div className="flex items-center gap-4">
             {/* User welcome block */}
             <div className="relative">
-              <button 
+              <button
                 onClick={() => setShowDropdown(!showDropdown)}
                 className="flex items-center gap-3 text-right focus:outline-none hover:bg-slate-50 p-1.5 rounded-xl transition"
               >
