@@ -11,10 +11,23 @@ export interface Product {
 
 export interface Customer {
   id: string;
-  name: string;
-  phone: string;
+  name: string; // Mapped from full_name
+  phone: string; // Mapped from mobile
   email: string;
   outstandingBalance: number;
+  
+  // Backend Mapping Fields
+  full_name?: string;
+  mobile?: string;
+  password?: string;
+  state_id?: string;
+  district_id?: string;
+  mandal_id?: string;
+  constituency_id?: string;
+  village_id?: string;
+  address?: string;
+  is_mobile_verified?: boolean;
+  status?: string;
 }
 
 export interface CartItem {

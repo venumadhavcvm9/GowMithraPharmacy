@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import { 
-  Receipt, 
-  Upload, 
-  Send, 
-  TrendingUp, 
-  AlertCircle, 
-  CheckCircle, 
-  XSquare, 
-  Eye, 
-  Printer, 
+import {
+  Receipt,
+  Upload,
+  Send,
+  TrendingUp,
+  AlertCircle,
+  CheckCircle,
+  XSquare,
+  Eye,
+  Printer,
   FileCheck,
   Plus,
   X
@@ -39,6 +39,13 @@ export default function EodSettlement({ sales, pendingApprovals, setPendingAppro
 
   const cashTotal = cashSales.reduce((acc, s) => acc + s.total, 0);
   const upiTotal = upiSales.reduce((acc, s) => acc + s.total, 0);
+  
+  // Calculate total of approved cash deposits
+  const approvedDepositsTotal = pendingApprovals
+    .filter(p => p.status === 'Approved' && p.saleTitle.includes('Cash Transfer'))
+    .reduce((acc, p) => acc + p.amount, 0);
+    
+  const netCashDrawer = cashTotal - approvedDepositsTotal;
   const combinedTotal = cashTotal + upiTotal;
 
   // Handles simulated receipt image upload via base64 or standard asset selector
@@ -134,10 +141,10 @@ export default function EodSettlement({ sales, pendingApprovals, setPendingAppro
 
   return (
     <div id="eod-settlement-tabs" className="space-y-6">
-      
+
       {/* Top Ledger stats matching "Day Sale" (Online & Cash) sketch wireframes */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        
+
         {/* Day Sale ledger */}
         <div className="lg:col-span-4 bg-white border border-slate-200/80 p-5 rounded-2xl shadow-sm flex flex-col justify-between">
           <div>
@@ -154,7 +161,7 @@ export default function EodSettlement({ sales, pendingApprovals, setPendingAppro
                 <p className="font-bold text-slate-800">Cash Receipts Drawer</p>
                 <p className="text-[11px] text-slate-400 mt-0.5">{cashSales.length} cash transactions</p>
               </div>
-              <span className="font-mono font-bold text-emerald-700 text-base">₹{cashTotal.toFixed(2)}</span>
+              <span className="font-mono font-bold text-emerald-700 text-base">₹{netCashDrawer.toFixed(2)}</span>
             </div>
 
             <div className="bg-purple-650/5 p-4 rounded-xl border border-purple-500/10 flex justify-between items-center text-sm">
@@ -176,7 +183,7 @@ export default function EodSettlement({ sales, pendingApprovals, setPendingAppro
         {/* Deposit Cash Module */}
         <div className="lg:col-span-8 bg-white border border-slate-200/80 p-5 rounded-2xl shadow-sm">
           <form onSubmit={handleSubmitDeposit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            
+
             {/* Numeric ledger forms */}
             <div className="space-y-4">
               <div>
@@ -193,8 +200,8 @@ export default function EodSettlement({ sales, pendingApprovals, setPendingAppro
 
               <div className="space-y-1.5 text-xs font-semibold">
                 <label className="text-slate-500">Physical Cash Transfer Amount (₹)</label>
-                <input 
-                  type="number" 
+                <input
+                  type="number"
                   step="0.01"
                   placeholder="e.g. 1500.00"
                   value={depositAmount}
@@ -206,8 +213,8 @@ export default function EodSettlement({ sales, pendingApprovals, setPendingAppro
 
               <div className="space-y-1.5 text-xs font-semibold">
                 <label className="text-slate-500">Reason / Reference Notes</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   value={depositReason}
                   onChange={(e) => setDepositReason(e.target.value)}
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs outline-none focus:bg-white text-slate-700 font-medium"
@@ -215,7 +222,7 @@ export default function EodSettlement({ sales, pendingApprovals, setPendingAppro
                 />
               </div>
 
-              <button 
+              <button
                 type="submit"
                 className="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs py-3 rounded-xl shadow-md flex items-center justify-center gap-1.5 transition active:scale-[0.99]"
               >
@@ -227,11 +234,10 @@ export default function EodSettlement({ sales, pendingApprovals, setPendingAppro
             {/* Receipt Upload area - matching "Upload Receipt" arrow in sketch */}
             <div className="space-y-3.5 flex flex-col justify-between">
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Upload Bank Cash Deposit slip</span>
-              
-              <div 
-                className={`flex-1 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center text-center p-4 transition relative min-h-[160px] ${
-                  dragActive ? 'border-emerald-500 bg-emerald-50/20' : 'border-slate-200 bg-slate-50'
-                }`}
+
+              <div
+                className={`flex-1 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center text-center p-4 transition relative min-h-[160px] ${dragActive ? 'border-emerald-500 bg-emerald-50/20' : 'border-slate-200 bg-slate-50'
+                  }`}
                 onDragEnter={handleDrag}
                 onDragOver={handleDrag}
                 onDragLeave={handleDrag}
@@ -239,14 +245,14 @@ export default function EodSettlement({ sales, pendingApprovals, setPendingAppro
               >
                 {receiptImage ? (
                   <div className="absolute inset-0 w-full h-full rounded-2xl overflow-hidden p-2 bg-white">
-                    <img 
-                      src={receiptImage} 
-                      alt="uploaded receipt slip" 
+                    <img
+                      src={receiptImage}
+                      alt="uploaded receipt slip"
                       className="w-full h-full object-cover rounded-xl"
                       referrerPolicy="no-referrer"
                     />
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       onClick={() => setReceiptImage(null)}
                       className="absolute top-4 right-4 bg-red-500 text-white font-extrabold w-6 h-6 rounded-full flex items-center justify-center hover:bg-red-600 transition shadow-sm"
                     >
@@ -262,11 +268,11 @@ export default function EodSettlement({ sales, pendingApprovals, setPendingAppro
                     </div>
                     <label className="cursor-pointer inline-block bg-slate-200 hover:bg-slate-350 px-3.5 py-1.5 rounded-lg text-[10px] font-semibold text-slate-700 transition">
                       Browse Files
-                      <input 
-                        type="file" 
-                        accept="image/*" 
-                        onChange={handleReceiptUpload} 
-                        className="hidden" 
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleReceiptUpload}
+                        className="hidden"
                       />
                     </label>
                   </div>
@@ -277,14 +283,14 @@ export default function EodSettlement({ sales, pendingApprovals, setPendingAppro
               {!receiptImage && (
                 <div className="flex gap-2 justify-center items-center">
                   <span className="text-[10px] font-bold text-slate-400">Simulation slips:</span>
-                  <button 
+                  <button
                     type="button"
                     onClick={() => handleSelectPresetReceipt('https://images.unsplash.com/photo-1554415707-6e8cfc93fe23?auto=format&fit=crop&q=80&w=600')}
                     className="bg-slate-100 hover:bg-slate-200 py-1 px-2.5 rounded text-[9px] font-semibold text-slate-500"
                   >
                     Slip Preset #1
                   </button>
-                  <button 
+                  <button
                     type="button"
                     onClick={() => handleSelectPresetReceipt('https://images.unsplash.com/photo-1544377193-33dcf4d68fb5?auto=format&fit=crop&q=80&w=600')}
                     className="bg-slate-100 hover:bg-slate-200 py-1 px-2.5 rounded text-[9px] font-semibold text-slate-500"
@@ -308,7 +314,7 @@ export default function EodSettlement({ sales, pendingApprovals, setPendingAppro
             <p className="text-xs text-slate-400 font-medium">Daily Vault physical reconciliations filed awaiting audit clearances.</p>
           </div>
 
-          <button 
+          <button
             type="button"
             onClick={() => {
               window.print();
@@ -351,13 +357,12 @@ export default function EodSettlement({ sales, pendingApprovals, setPendingAppro
                   </td>
                   <td className="py-3.5 text-slate-500 text-xs truncate max-w-[200px]">{p.reason}</td>
                   <td className="py-3.5 font-semibold">
-                    <span className={`inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full ${
-                      p.status === 'Approved' 
-                        ? 'bg-emerald-50 text-emerald-700' 
-                        : p.status === 'Rejected' 
-                        ? 'bg-red-50 text-red-700 font-bold' 
+                    <span className={`inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full ${p.status === 'Approved'
+                      ? 'bg-emerald-50 text-emerald-700'
+                      : p.status === 'Rejected'
+                        ? 'bg-red-50 text-red-700 font-bold'
                         : 'bg-amber-50 text-amber-700'
-                    }`}>
+                      }`}>
                       {p.status}
                     </span>
                   </td>
@@ -381,9 +386,9 @@ export default function EodSettlement({ sales, pendingApprovals, setPendingAppro
             </button>
             <h4 className="font-bold text-slate-800 text-base mb-1 mb-4">Secured Vault Deposit Image Reference</h4>
             <div className="bg-slate-100 border border-slate-200 text-center rounded-2xl overflow-hidden shadow-inner flex items-center justify-center h-[350px]">
-              <img 
-                src={selectedReceiptUrl} 
-                alt="Vault receipt deposit slip slip" 
+              <img
+                src={selectedReceiptUrl}
+                alt="Vault receipt deposit slip slip"
                 className="max-h-[350px] w-auto max-w-full object-contain"
                 referrerPolicy="no-referrer"
               />

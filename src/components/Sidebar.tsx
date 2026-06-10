@@ -1,11 +1,11 @@
 import React from 'react';
-import { 
-  LayoutDashboard, 
-  ShoppingBag, 
-  Undo2, 
-  UserPlus, 
-  BarChart3, 
-  Stethoscope, 
+import {
+  LayoutDashboard,
+  ShoppingBag,
+  Undo2,
+  UserPlus,
+  BarChart3,
+  Stethoscope,
   Receipt,
   Activity
 } from 'lucide-react';
@@ -36,7 +36,7 @@ export default function Sidebar({ activeTab, setActiveTab, pendingApprovalsCount
           <Activity className="w-6 h-6 text-white relative z-10 transition-transform duration-300 group-hover:rotate-12" />
         </div>
         <div className="flex flex-col min-w-0">
-          <h1 id="brand-name" className="font-bold text-2xl leading-tight bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent tracking-tight truncate">MediSync</h1>
+          <h1 id="brand-name" className="font-bold text-xl leading-tight bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent tracking-tight truncate">GowMithra</h1>
           <span id="brand-tagline" className="text-[10px] text-emerald-400 font-bold uppercase tracking-widest mt-0.5 truncate">Pharmacy ERP</span>
         </div>
       </div>
@@ -54,15 +54,13 @@ export default function Sidebar({ activeTab, setActiveTab, pendingApprovalsCount
               key={item.id}
               id={`nav-${item.id}`}
               onClick={() => setActiveTab(item.id)}
-              className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl text-left transition-all duration-200 group ${
-                isActive 
-                  ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 font-medium' 
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
-              }`}
+              className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl text-left transition-all duration-200 group ${isActive
+                ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 font-medium'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                }`}
             >
-              <Icon className={`w-5 h-5 flex-shrink-0 transition-transform duration-200 group-hover:scale-110 ${
-                isActive ? 'text-white' : 'text-slate-400 group-hover:text-emerald-400'
-              }`} />
+              <Icon className={`w-5 h-5 flex-shrink-0 transition-transform duration-200 group-hover:scale-110 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-emerald-400'
+                }`} />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium leading-none truncate">{item.name}</p>
                 <p className={`text-[10px] mt-1 truncate ${isActive ? 'text-emerald-100' : 'text-slate-500'}`}>
@@ -70,9 +68,8 @@ export default function Sidebar({ activeTab, setActiveTab, pendingApprovalsCount
                 </p>
               </div>
               {item.badge && item.badge > 0 ? (
-                <span className={`px-2 py-0.5 text-xs font-semibold rounded-full flex items-center justify-center min-w-[20px] h-5 ${
-                  isActive ? 'bg-white text-emerald-600' : 'bg-red-500/10 text-red-400 border border-red-500/20'
-                }`}>
+                <span className={`px-2 py-0.5 text-xs font-semibold rounded-full flex items-center justify-center min-w-[20px] h-5 ${isActive ? 'bg-white text-emerald-600' : 'bg-red-500/10 text-red-400 border border-red-500/20'
+                  }`}>
                   {item.badge}
                 </span>
               ) : null}

@@ -1,10 +1,9 @@
 import React from 'react';
 import { 
-  TrendingUp, 
-  DollarSign, 
+  Activity,
+  IndianRupee, 
   CreditCard, 
   Users, 
-  AlertTriangle,
   ArrowRight,
   TrendingDown
 } from 'lucide-react';
@@ -27,7 +26,6 @@ export default function BriefDashboard({ sales, products, customers, setActiveTa
     .filter(s => s.paymentMode === 'UPI')
     .reduce((acc, s) => acc + s.total, 0);
 
-  const lowStockProducts = products.filter(p => p.stock < 100);
   const outstandingBal = customers.reduce((acc, c) => acc + c.outstandingBalance, 0);
 
   // Simple dataset for trend representing simulated sales of past 6 days
@@ -51,14 +49,15 @@ export default function BriefDashboard({ sales, products, customers, setActiveTa
       </div>
 
       {/* KPI Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        {/* Calculated Revenue */}
         <div className="bg-white border border-slate-200/80 p-5 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
           <div className="flex justify-between items-start">
-            <span className="p-2.5 bg-emerald-100/60 text-emerald-700 rounded-xl">
-              <TrendingUp className="w-5 h-5" />
+            <span className="p-2.5 bg-indigo-100/60 text-indigo-700 rounded-xl">
+              <Activity className="w-5 h-5" />
             </span>
-            <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full flex items-center gap-1">
-              +14.2% today
+            <span className="text-xs font-semibold text-indigo-600 bg-indigo-50 px-2.5 py-0.5 rounded-full">
+              Gross Total
             </span>
           </div>
           <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider mt-4">Calculated Revenue</p>
@@ -69,7 +68,7 @@ export default function BriefDashboard({ sales, products, customers, setActiveTa
         <div className="bg-white border border-slate-200/80 p-5 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
           <div className="flex justify-between items-start">
             <span className="p-2.5 bg-sky-100/60 text-sky-700 rounded-xl">
-              <DollarSign className="w-5 h-5" />
+              <IndianRupee className="w-5 h-5" />
             </span>
             <span className="text-xs font-semibold text-sky-600 bg-sky-50 px-2.5 py-0.5 rounded-full">
               Cash Drawer
@@ -94,21 +93,6 @@ export default function BriefDashboard({ sales, products, customers, setActiveTa
           <div className="mt-2 text-xs text-slate-400 font-medium">Deposited directly to bank</div>
         </div>
 
-        <div className="bg-white border border-slate-200/80 p-5 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
-          <div className="flex justify-between items-start">
-            <span className="p-2.5 bg-amber-100/60 text-amber-700 rounded-xl">
-              <AlertTriangle className="w-5 h-5" />
-            </span>
-            <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${
-              lowStockProducts.length > 0 ? 'bg-red-50 text-red-600' : 'bg-emerald-50 text-emerald-600'
-            }`}>
-              {lowStockProducts.length} warnings
-            </span>
-          </div>
-          <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider mt-4">Critical Low Stock</p>
-          <p className="text-2xl font-bold text-slate-800 tracking-tight mt-1">{lowStockProducts.length}</p>
-          <div className="mt-2 text-xs text-slate-400 font-medium">Products with &lt; 100 units</div>
-        </div>
       </div>
 
       {/* Main Grid: Revenue Trend & Store Directory */}
@@ -212,58 +196,6 @@ export default function BriefDashboard({ sales, products, customers, setActiveTa
         </div>
       </div>
 
-      {/* Warnings & Inventory Status Panel */}
-      <div className="bg-white border border-slate-200/80 p-6 rounded-2xl shadow-sm">
-        <h3 className="text-lg font-bold text-slate-800 tracking-tight mb-2 flex items-center gap-2">
-          <AlertTriangle className="w-5 h-5 text-amber-500" />
-          Attention Inventory Replenishments
-        </h3>
-        <p className="text-xs text-slate-400 font-medium mb-4">The following stock batches have fallen below minimum thresholds and require orders.</p>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="border-b border-slate-100 text-slate-400 font-semibold text-xs tracking-wider uppercase">
-                <th className="pb-3 font-medium">Medicine SKU</th>
-                <th className="pb-3 font-medium">Batch Code</th>
-                <th className="pb-3 font-medium">Category Color</th>
-                <th className="pb-3 font-medium">Unit Price</th>
-                <th className="pb-3 font-medium">Current Stock</th>
-                <th className="pb-3 font-medium text-right">Procure Trigger</th>
-              </tr>
-            </thead>
-            <tbody>
-              {lowStockProducts.map((p) => (
-                <tr key={p.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/50 transition-colors">
-                  <td className="py-3 font-semibold text-slate-700">
-                    {p.name} <span className="font-normal text-xs text-slate-400 font-mono">{p.dosage}</span>
-                  </td>
-                  <td className="py-3 font-mono text-xs text-slate-500">{p.code}</td>
-                  <td className="py-3">
-                    <span className="inline-flex items-center gap-1.5 text-xs text-slate-600 font-semibold">
-                      <span 
-                        className="w-2.5 h-2.5 rounded-full border border-slate-200"
-                        style={{ backgroundColor: p.color.toLowerCase() }}
-                      ></span>
-                      {p.color} ({p.category})
-                    </span>
-                  </td>
-                  <td className="py-3 font-mono text-slate-700">₹{p.price.toFixed(2)}</td>
-                  <td className="py-3 font-mono font-bold text-red-600">{p.stock} units</td>
-                  <td className="py-3 text-right">
-                    <button 
-                      onClick={() => setActiveTab('shop')} 
-                      className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded-lg font-semibold transition"
-                    >
-                      Restock Order
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
     </div>
   );
 }

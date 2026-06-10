@@ -1,22 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  HeartPulse, 
-  User, 
-  Clock, 
-  Calendar, 
-  Settings, 
-  HelpCircle, 
+import {
+  HeartPulse,
+  User,
+  Clock,
+  Calendar,
+  Settings,
+  HelpCircle,
   Lock
 } from 'lucide-react';
 
 // Live states seed structures
-import { 
-  initialProducts, 
-  initialCustomers, 
-  initialDoctors, 
-  initialSales, 
-  initialPendingApprovals, 
-  initialReturns 
+import {
+  initialProducts,
+  initialCustomers,
+  initialDoctors,
+  initialSales,
+  initialPendingApprovals,
+  initialReturns
 } from './data';
 import { Product, Customer, Doctor, Sale, PendingApproval, ReturnItem } from './types';
 import { api } from './services/api';
@@ -33,13 +33,14 @@ import EodSettlement from './components/EodSettlement';
 import Login from './components/Login';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('dashboard');
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => !!localStorage.getItem('token'));
+  const [activeTab, setActiveTab] = useState('dashboard');
   const [user, setUser] = useState<any>(() => {
     const saved = localStorage.getItem('rx_user');
     return saved ? JSON.parse(saved) : null;
   });
-  
+  const [showDropdown, setShowDropdown] = useState(false);
+
   // Storage hooks representing operational variables
   const [products, setProducts] = useState<Product[]>(() => {
     const saved = localStorage.getItem('rx_products');
@@ -144,17 +145,17 @@ export default function App() {
   const pendingApprovalsCount = pendingApprovals.filter(p => p.status === 'Pending').length;
 
   // Header helpers
-  const todayStr = now.toLocaleDateString('en-US', { 
-    weekday: 'long', 
-    year: 'numeric', 
-    month: 'short', 
-    day: 'numeric' 
+  const todayStr = now.toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
   });
-  const timeStr = now.toLocaleTimeString('en-US', { 
-    hour: '2-digit', 
-    minute: '2-digit', 
-    second: '2-digit', 
-    hour12: true 
+  const timeStr = now.toLocaleTimeString('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true
   });
 
   // Render view router based on selected navigation tab
@@ -162,27 +163,28 @@ export default function App() {
     switch (activeTab) {
       case 'dashboard':
         return (
-          <BriefDashboard 
-            sales={sales} 
-            products={products} 
-            customers={customers} 
-            setActiveTab={setActiveTab} 
+          <BriefDashboard
+            sales={sales}
+            products={products}
+            customers={customers}
+            setActiveTab={setActiveTab}
           />
         );
       case 'shop':
         return (
-          <BillingWorkspace 
+          <BillingWorkspace
             products={products}
             setProducts={setProducts}
             customers={customers}
             setCustomers={setCustomers}
             sales={sales}
             setSales={setSales}
+            onNavigateToRegister={() => setActiveTab('new-user')}
           />
         );
       case 'returns':
         return (
-          <ReturnsLog 
+          <ReturnsLog
             returns={returns}
             setReturns={setReturns}
             sales={sales}
@@ -191,7 +193,7 @@ export default function App() {
         );
       case 'new-user':
         return (
-          <NewUserForm 
+          <NewUserForm
             customers={customers}
             setCustomers={setCustomers}
           />
@@ -200,14 +202,14 @@ export default function App() {
         return <SalesHistory sales={sales} />;
       case 'doctors':
         return (
-          <DoctorDirectory 
+          <DoctorDirectory
             doctors={doctors}
             setDoctors={setDoctors}
           />
         );
       case 'eod':
         return (
-          <EodSettlement 
+          <EodSettlement
             sales={sales}
             pendingApprovals={pendingApprovals}
             setPendingApprovals={setPendingApprovals}
@@ -250,17 +252,17 @@ export default function App() {
 
   return (
     <div id="application-layout" className="flex h-screen bg-slate-50 font-sans text-slate-700 antialiased overflow-hidden">
-      
+
       {/* Sidebar Navigation Left Rail */}
-      <Sidebar 
-        activeTab={activeTab} 
-        setActiveTab={setActiveTab} 
+      <Sidebar
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
         pendingApprovalsCount={pendingApprovalsCount}
       />
 
       {/* Main Workspace Frame */}
       <div id="main-content-scroller" className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        
+
         {/* Dynamic Upper Control Dashboard Banner */}
         <header id="top-control-banner" className="bg-white border-b border-slate-200/80 px-8 py-4.5 flex-shrink-0 flex items-center justify-between shadow-sm z-10">
           <div className="flex items-center gap-4">
@@ -276,14 +278,33 @@ export default function App() {
 
           <div className="flex items-center gap-4">
             {/* User welcome block */}
-            <div className="flex items-center gap-3 text-right">
-              <div className="hidden md:block">
-                <p className="text-xs font-bold text-slate-800 leading-tight">{user?.name || user?.full_name || 'Pharmacist'}</p>
-                <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">{user?.role === 'PHARMACY_OWNER' ? 'Pharmacy Owner' : 'Terminal Manager'}</p>
-              </div>
-              <div className="w-9 h-9 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 flex items-center justify-center font-bold text-sm">
-                {(user?.name || user?.full_name || 'P')[0]?.toUpperCase()}
-              </div>
+            <div className="relative">
+              <button
+                onClick={() => setShowDropdown(!showDropdown)}
+                className="flex items-center gap-3 text-right focus:outline-none hover:bg-slate-50 p-1.5 rounded-xl transition"
+              >
+                <div className="hidden md:block">
+                  <p className="text-xs font-bold text-slate-800 leading-tight">{user?.name || user?.full_name || 'Pharmacist'}</p>
+                  <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">{user?.role === 'PHARMACY_OWNER' ? 'Pharmacy Owner' : 'Terminal Manager'}</p>
+                </div>
+                <div className="w-9 h-9 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 flex items-center justify-center font-bold text-sm cursor-pointer">
+                  {(user?.name || user?.full_name || 'P')[0]?.toUpperCase()}
+                </div>
+              </button>
+
+              {showDropdown && (
+                <div className="absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-xl shadow-lg z-50 py-1">
+                  <button
+                    onClick={() => {
+                      handleLogout();
+                      setShowDropdown(false);
+                    }}
+                    className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 font-semibold transition"
+                  >
+                    Logout
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Extra header utilities */}
