@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Undo2, Search, CornerUpLeft, Plus, AlertCircle, Sparkles, CheckCircle } from 'lucide-react';
 import { ReturnItem, Sale, Product } from '../types';
+import { api } from '../services/api';
 
 interface ReturnsLogProps {
   returns: ReturnItem[];
@@ -44,7 +45,7 @@ export default function ReturnsLog({ returns, setReturns, sales, setProducts }: 
   };
 
   // Add Return
-  const handleSubmitReturn = (e: React.FormEvent) => {
+  const handleSubmitReturn = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!matchedSale || selectedProductIdx < 0) return;
 
@@ -58,32 +59,57 @@ export default function ReturnsLog({ returns, setReturns, sales, setProducts }: 
     const itemPrice = itemToReturn.price;
     const computedRefund = parseFloat((itemPrice * returnQty * 1.12).toFixed(2)); // include 12% GST
 
-    const newReturn: ReturnItem = {
-      id: `RET-${Math.floor(10 + Math.random() * 90)}`,
-      saleId: matchedSale.id,
-      customerName: matchedSale.customerName,
-      productName: `${itemToReturn.productName} (${itemToReturn.dosage})`,
-      quantity: returnQty,
-      refundAmount: computedRefund,
-      reason: returnReason,
-      status: 'Completed',
-      timestamp: new Date().toLocaleString()
-    };
+    try {
+      const response = await api.post('/pharmacy/returns', {
+        saleId: matchedSale.id,
+        customerName: matchedSale.customerName,
+        productName: `${itemToReturn.productName} (${itemToReturn.dosage})`,
+        quantity: returnQty,
+        refundAmount: computedRefund,
+        reason: returnReason
+      });
 
-    // Increment original pharmaceutical stocks to reflect returned batch
-    setProducts(prev => prev.map(p => {
-      // Clean target name match
-      if (p.name === itemToReturn.productName && p.dosage === itemToReturn.dosage) {
-        return { ...p, stock: p.stock + returnQty };
+      if (response.success && response.data) {
+        const retData = response.data;
+        const newReturn: ReturnItem = {
+          id: retData.return_id,
+          saleId: retData.sale_id,
+          customerName: retData.customer_name,
+          productName: retData.product_name,
+          quantity: retData.quantity,
+          refundAmount: parseFloat(retData.refund_amount),
+          reason: retData.reason,
+          status: retData.status,
+          timestamp: new Date(retData.createdAt).toLocaleString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) + ' Today'
+        };
+
+        // Increment original pharmaceutical stocks to reflect returned batch
+        setProducts(prev => {
+          const updatedProducts = prev.map(p => {
+            // Clean target name match
+            if (p.name === itemToReturn.productName && p.dosage === itemToReturn.dosage) {
+              const newStock = p.stock + returnQty;
+              // Hit PUT /inventory/:id to persist the returned stock
+              api.put(`/pharmacy/inventory/${p.id}`, { stock: newStock }).catch(err => {
+                console.error("Failed to update inventory stock on backend", err);
+              });
+              return { ...p, stock: newStock };
+            }
+            return p;
+          });
+          return updatedProducts;
+        });
+
+        // Save Return
+        setReturns(prev => [newReturn, ...prev]);
+        setSuccessInfo(`Processed Refund of ₹${computedRefund.toFixed(2)} for ${newReturn.productName}`);
+        setMatchedSale(null);
+        setSaleSearch('');
       }
-      return p;
-    }));
-
-    // Save Return
-    setReturns(prev => [newReturn, ...prev]);
-    setSuccessInfo(`Processed Refund of ₹${computedRefund.toFixed(2)} for ${newReturn.productName}`);
-    setMatchedSale(null);
-    setSaleSearch('');
+    } catch (err) {
+      console.error(err);
+      alert('Failed to log return to the backend.');
+    }
   };
 
   return (

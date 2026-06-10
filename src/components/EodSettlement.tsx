@@ -124,9 +124,9 @@ export default function EodSettlement({ sales, pendingApprovals, setPendingAppro
         setDepositAmount('');
         setReceiptImage(null);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert('Failed to dispatch settlement to the server.');
+      alert(`Failed to dispatch settlement to the server: ${err.message}`);
     }
 
     setTimeout(() => setSuccessMsg(''), 4000);

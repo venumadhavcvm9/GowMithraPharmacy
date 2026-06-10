@@ -30,9 +30,15 @@ import NewUserForm from './components/NewUserForm';
 import SalesHistory from './components/SalesHistory';
 import DoctorDirectory from './components/DoctorDirectory';
 import EodSettlement from './components/EodSettlement';
+import Login from './components/Login';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => !!localStorage.getItem('token'));
+  const [user, setUser] = useState<any>(() => {
+    const saved = localStorage.getItem('rx_user');
+    return saved ? JSON.parse(saved) : null;
+  });
   
   // Storage hooks representing operational variables
   const [products, setProducts] = useState<Product[]>(() => {
@@ -100,6 +106,8 @@ export default function App() {
 
   // Fetch live data from backend APIs
   useEffect(() => {
+    if (!isAuthenticated) return;
+
     const fetchData = async () => {
       try {
         const [invRes, salesRes, setRes, retRes, doctorsRes] = await Promise.all([
@@ -130,7 +138,7 @@ export default function App() {
       }
     };
     fetchData();
-  }, []);
+  }, [isAuthenticated]);
 
   // Extract count of approvals that are pending
   const pendingApprovalsCount = pendingApprovals.filter(p => p.status === 'Pending').length;
@@ -214,6 +222,32 @@ export default function App() {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      await api.post('/auth/logout', {});
+    } catch (err) {
+      console.error('Logout error', err);
+    } finally {
+      localStorage.removeItem('token');
+      localStorage.removeItem('rx_user');
+      setIsAuthenticated(false);
+      setUser(null);
+    }
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <Login 
+        onLoginSuccess={(userData, token) => {
+          localStorage.setItem('token', token);
+          localStorage.setItem('rx_user', JSON.stringify(userData));
+          setUser(userData);
+          setIsAuthenticated(true);
+        }} 
+      />
+    );
+  }
+
   return (
     <div id="application-layout" className="flex h-screen bg-slate-50 font-sans text-slate-700 antialiased overflow-hidden">
       
@@ -244,11 +278,11 @@ export default function App() {
             {/* User welcome block */}
             <div className="flex items-center gap-3 text-right">
               <div className="hidden md:block">
-                <p className="text-xs font-bold text-slate-800 leading-tight">Pranay Salavadhi</p>
-                <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Terminal Manager</p>
+                <p className="text-xs font-bold text-slate-800 leading-tight">{user?.name || user?.full_name || 'Pharmacist'}</p>
+                <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">{user?.role === 'PHARMACY_OWNER' ? 'Pharmacy Owner' : 'Terminal Manager'}</p>
               </div>
               <div className="w-9 h-9 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 flex items-center justify-center font-bold text-sm">
-                PS
+                {(user?.name || user?.full_name || 'P')[0]?.toUpperCase()}
               </div>
             </div>
 
@@ -259,6 +293,9 @@ export default function App() {
               </button>
               <button className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition" title="Help guidelines">
                 <HelpCircle className="w-4 h-4" />
+              </button>
+              <button onClick={handleLogout} className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition" title="Sign out">
+                <Lock className="w-4 h-4" />
               </button>
             </div>
           </div>
