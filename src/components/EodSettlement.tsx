@@ -14,6 +14,7 @@ import {
   X
 } from 'lucide-react';
 import { PendingApproval, Sale } from '../types';
+import { api } from '../services/api';
 
 interface EodSettlementProps {
   sales: Sale[];
@@ -84,7 +85,7 @@ export default function EodSettlement({ sales, pendingApprovals, setPendingAppro
   };
 
   // Dispatch Cash Deposit to Pending Manager Approvals table
-  const handleSubmitDeposit = (e: React.FormEvent) => {
+  const handleSubmitDeposit = async (e: React.FormEvent) => {
     e.preventDefault();
     const amt = parseFloat(depositAmount);
     if (isNaN(amt) || amt <= 0) {
@@ -93,30 +94,42 @@ export default function EodSettlement({ sales, pendingApprovals, setPendingAppro
     }
 
     const defaultSlip = 'https://images.unsplash.com/photo-1554415707-6e8cfc93fe23?auto=format&fit=crop&q=80&w=600';
+    const finalReceiptUrl = receiptImage || defaultSlip;
     
-    const depositLog: PendingApproval = {
-      id: `APP-${Math.floor(200 + Math.random() * 800)}`,
-      saleTitle: `EOD Settlement - Cash Transfer Summary`,
-      amount: amt,
-      receiptUrl: receiptImage || defaultSlip,
-      reason: depositReason,
-      status: 'Pending',
-      timestamp: new Date().toLocaleString()
-    };
+    try {
+      // Send to backend
+      const response = await api.post('/pharmacy/settlements', {
+        saleTitle: 'EOD Settlement - Cash Transfer Summary',
+        amount: amt,
+        receiptUrl: finalReceiptUrl,
+        reason: depositReason
+      });
 
-    setPendingApprovals(prev => [depositLog, ...prev]);
-    setSuccessMsg(`Deposited Cash of ₹${amt.toFixed(2)} filed successfully! Awaiting manager approval.`);
-    setDepositAmount('');
-    setReceiptImage(null);
+      if (response.success) {
+        // We can either refetch or push the backend's response object into local state.
+        // For immediate UI update we'll just push the new record returned by the backend:
+        const serverSettlement = response.data;
+        const newLog: PendingApproval = {
+          id: serverSettlement.settlement_id,
+          saleTitle: serverSettlement.sale_title,
+          amount: parseFloat(serverSettlement.amount),
+          receiptUrl: serverSettlement.receipt_url,
+          reason: serverSettlement.reason,
+          status: serverSettlement.status,
+          timestamp: new Date(serverSettlement.createdAt).toLocaleString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) + ' Today'
+        };
+
+        setPendingApprovals(prev => [newLog, ...prev]);
+        setSuccessMsg(`Deposited Cash of ₹${amt.toFixed(2)} filed successfully! Awaiting manager approval.`);
+        setDepositAmount('');
+        setReceiptImage(null);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Failed to dispatch settlement to the server.');
+    }
 
     setTimeout(() => setSuccessMsg(''), 4000);
-  };
-
-  // Update Status callbacks for owner management
-  const handleUpdateStatus = (id: string, nextStatus: 'Approved' | 'Rejected') => {
-    setPendingApprovals(prev => prev.map(p => 
-      p.id === id ? { ...p, status: nextStatus } : p
-    ));
   };
 
   return (
@@ -316,7 +329,6 @@ export default function EodSettlement({ sales, pendingApprovals, setPendingAppro
                 <th className="pb-3 font-medium">Receipt Ticket</th>
                 <th className="pb-3 font-medium">Reason Statement</th>
                 <th className="pb-3 font-medium">Approved Status</th>
-                <th className="pb-3 font-medium text-right">System Action</th>
               </tr>
             </thead>
             <tbody>
@@ -348,28 +360,6 @@ export default function EodSettlement({ sales, pendingApprovals, setPendingAppro
                     }`}>
                       {p.status}
                     </span>
-                  </td>
-                  <td className="py-3.5 text-right font-semibold">
-                    {p.status === 'Pending' ? (
-                      <div className="flex gap-2 justify-end">
-                        <button
-                          type="button"
-                          onClick={() => handleUpdateStatus(p.id, 'Approved')}
-                          className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition active:scale-95"
-                        >
-                          Approve Check
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleUpdateStatus(p.id, 'Rejected')}
-                          className="bg-red-50 hover:bg-red-100 text-red-600 border border-red-100 font-bold text-xs px-3 py-1.5 rounded-lg transition active:scale-95"
-                        >
-                          Reject
-                        </button>
-                      </div>
-                    ) : (
-                      <span className="text-[10px] text-slate-400 tracking-wider">Locked State</span>
-                    )}
                   </td>
                 </tr>
               ))}

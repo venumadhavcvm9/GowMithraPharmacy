@@ -64,13 +64,49 @@ export default function BillingWorkspace({
   const colorsList = ['All', ...Array.from(new Set(products.map(p => p.color)))];
 
   // 1. Fetch data handler matching the hand-drawn "Fetch data" arrow on Name/Phone
-  const handleFetchCustomer = () => {
+  const handleFetchCustomer = async () => {
     if (!phoneSearch.trim()) {
       setLookupFeedback({ type: 'info', message: 'Enter a customer Name or Phone first.' });
       return;
     }
 
     const cleaned = phoneSearch.trim().toLowerCase();
+
+    // Check if it's a mobile number and call backend API
+    const isMobile = /^[0-9]{10}$/.test(cleaned);
+    if (isMobile) {
+      try {
+        const response = await api.get(`/pharmacy/users/mobile/${cleaned}`);
+        if (response.success && response.data) {
+          const user = response.data;
+          const customer: Customer = {
+            id: user.id ? `u_${user.id}` : `c_${Date.now()}`,
+            name: user.full_name || 'Unknown',
+            phone: user.mobile || cleaned,
+            email: 'walkin@rxpharmacy.net',
+            outstandingBalance: 0.00
+          };
+          setSelectedCustomer(customer);
+          setPhoneSearch(customer.phone);
+          setLookupFeedback({
+            type: 'success',
+            message: `Successfully loaded database file for: ${customer.name}`
+          });
+          
+          // Update local customers state
+          setCustomers(prev => {
+            if (!prev.find(c => c.phone === customer.phone)) {
+              return [...prev, customer];
+            }
+            return prev;
+          });
+          return;
+        }
+      } catch (err) {
+        console.error("Failed to fetch customer from backend:", err);
+      }
+    }
+
     const found = customers.find(c =>
       c.phone.includes(cleaned) || c.name.toLowerCase().includes(cleaned)
     );
