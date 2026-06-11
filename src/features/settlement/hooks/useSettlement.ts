@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Sale, PendingApproval } from '../../../types';
 import { api } from '../../../services/api';
 import { useDragAndDrop } from './useDragAndDrop';

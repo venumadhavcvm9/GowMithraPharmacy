@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Customer, Product, Sale, CartItem } from '../../../types';
 import { api } from '../../../services/api';
 
