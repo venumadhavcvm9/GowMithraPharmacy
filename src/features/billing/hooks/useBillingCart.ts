@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Product, Customer, Sale } from '../../../types';
 import { useCustomerSearch } from './useCustomerSearch';
 import { useCartState } from './useCartState';

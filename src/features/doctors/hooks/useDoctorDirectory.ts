@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Doctor } from '../../../types';
 
 export function useDoctorDirectory(doctors: Doctor[], setDoctors: React.Dispatch<React.SetStateAction<Doctor[]>>) {
