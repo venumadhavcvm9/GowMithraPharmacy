@@ -3,17 +3,23 @@ const API_URL = "http://localhost:5000/api";
 
 export const api = {
   get: async (endpoint: string) => {
-    const token = localStorage.getItem("token");
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
     };
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
+    const userStr = localStorage.getItem('rx_user');
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        if (user.shop_id || user.id) {
+          headers["X-Shop-Id"] = user.shop_id ? String(user.shop_id) : String(user.id);
+        }
+      } catch (e) {}
     }
 
     const response = await fetch(`${API_URL}${endpoint}`, {
       method: "GET",
       headers,
+      credentials: "include",
     });
     
     if (!response.ok) {
@@ -28,18 +34,24 @@ export const api = {
   },
 
   post: async (endpoint: string, body: any) => {
-    const token = localStorage.getItem("token");
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
     };
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
+    const userStr = localStorage.getItem('rx_user');
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        if (user.shop_id || user.id) {
+          headers["X-Shop-Id"] = user.shop_id ? String(user.shop_id) : String(user.id);
+        }
+      } catch (e) {}
     }
 
     const response = await fetch(`${API_URL}${endpoint}`, {
       method: "POST",
       headers,
       body: JSON.stringify(body),
+      credentials: "include",
     });
 
     if (!response.ok) {
@@ -58,18 +70,24 @@ export const api = {
   },
 
   put: async (endpoint: string, body: any) => {
-    const token = localStorage.getItem("token");
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
     };
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
+    const userStr = localStorage.getItem('rx_user');
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        if (user.shop_id || user.id) {
+          headers["X-Shop-Id"] = user.shop_id ? String(user.shop_id) : String(user.id);
+        }
+      } catch (e) {}
     }
 
     const response = await fetch(`${API_URL}${endpoint}`, {
       method: "PUT",
       headers,
       body: JSON.stringify(body),
+      credentials: "include",
     });
 
     if (!response.ok) {
