@@ -12,6 +12,7 @@ export function useSettlement(
   const [depositReason, setDepositReason] = useState('EOD physical cash courier transfer to HQ');
   const [receiptImage, setReceiptImage] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
 
   const { dragActive, handleDrag, handleDrop } = useDragAndDrop(setReceiptImage);
 
@@ -42,10 +43,23 @@ export function useSettlement(
   const handleSubmitDeposit = async (e: React.FormEvent) => {
     e.preventDefault();
     const amt = parseFloat(depositAmount);
-    if (isNaN(amt) || amt <= 0) return alert('Key in a positive decimal amount to deposit.');
-    if (amt > netCashDrawer) return alert(`You cannot dispatch more than your current drawer balance (₹${netCashDrawer.toFixed(2)}).`);
+    if (isNaN(amt) || amt <= 0) {
+      setErrorMsg('Key in a positive decimal amount to deposit.');
+      setTimeout(() => setErrorMsg(''), 4000);
+      return;
+    }
+    if (amt > netCashDrawer) {
+      setErrorMsg(`You cannot dispatch more than your current drawer balance (₹${netCashDrawer.toFixed(2)}).`);
+      setTimeout(() => setErrorMsg(''), 4000);
+      return;
+    }
 
-    const finalReceiptUrl = receiptImage || 'https://images.unsplash.com/photo-1554415707-6e8cfc93fe23?auto=format&fit=crop&q=80&w=600';
+    if (!receiptImage) {
+      setErrorMsg('please upload deposit slip');
+      setTimeout(() => setErrorMsg(''), 4000);
+      return;
+    }
+    const finalReceiptUrl = receiptImage;
     
     try {
       const response = await api.post('/pharmacy/settlements', {
@@ -64,14 +78,17 @@ export function useSettlement(
         setSuccessMsg(`Deposited Cash of ₹${amt.toFixed(2)} filed successfully! Awaiting manager approval.`);
         setDepositAmount(''); setReceiptImage(null);
       }
-    } catch (err: any) { alert(`Failed to dispatch settlement to the server: ${err.message}`); }
+    } catch (err: any) { 
+      setErrorMsg(`Failed to dispatch settlement to the server: ${err.message}`); 
+      setTimeout(() => setErrorMsg(''), 4000);
+    }
 
     setTimeout(() => setSuccessMsg(''), 4000);
   };
 
   return {
     depositAmount, setDepositAmount, depositReason, setDepositReason, receiptImage, setReceiptImage,
-    dragActive, successMsg, cashSales, upiSales, netCashDrawer, upiTotal, combinedTotal,
+    dragActive, successMsg, errorMsg, cashSales, upiSales, netCashDrawer, upiTotal, combinedTotal,
     handleReceiptUpload, handleDrag, handleDrop, handleSelectPresetReceipt, handleSubmitDeposit
   };
 }

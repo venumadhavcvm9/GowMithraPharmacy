@@ -11,6 +11,7 @@ interface DepositCashBoxProps {
   setReceiptImage: (val: string | null) => void;
   dragActive: boolean;
   successMsg: string;
+  errorMsg?: string;
   handleSubmitDeposit: (e: React.FormEvent) => void;
   handleReceiptUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleDrag: (e: React.DragEvent) => void;
@@ -20,7 +21,7 @@ interface DepositCashBoxProps {
 
 export function DepositCashBox({
   depositAmount, setDepositAmount, depositReason, setDepositReason,
-  receiptImage, setReceiptImage, dragActive, successMsg,
+  receiptImage, setReceiptImage, dragActive, successMsg, errorMsg,
   handleSubmitDeposit, handleReceiptUpload, handleDrag, handleDrop, handleSelectPresetReceipt
 }: DepositCashBoxProps) {
   return (
@@ -29,7 +30,7 @@ export function DepositCashBox({
         <DepositForm 
           depositAmount={depositAmount} setDepositAmount={setDepositAmount}
           depositReason={depositReason} setDepositReason={setDepositReason}
-          successMsg={successMsg}
+          successMsg={successMsg} errorMsg={errorMsg}
         />
         <ReceiptUploader 
           receiptImage={receiptImage} setReceiptImage={setReceiptImage}

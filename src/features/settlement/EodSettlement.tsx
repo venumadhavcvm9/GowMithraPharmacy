@@ -33,6 +33,7 @@ export default function EodSettlement({ sales, pendingApprovals, setPendingAppro
           setReceiptImage={settlement.setReceiptImage}
           dragActive={settlement.dragActive}
           successMsg={settlement.successMsg}
+          errorMsg={settlement.errorMsg}
           handleSubmitDeposit={settlement.handleSubmitDeposit}
           handleReceiptUpload={settlement.handleReceiptUpload}
           handleDrag={settlement.handleDrag}

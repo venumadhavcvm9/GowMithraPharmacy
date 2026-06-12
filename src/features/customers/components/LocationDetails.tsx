@@ -26,9 +26,15 @@ export function LocationDetails({ formData, handleChange }: LocationDetailsProps
           <label className="text-xs font-semibold text-slate-500 uppercase">District</label>
           <select name="district_id" value={formData.district_id} onChange={handleChange} required className="w-full bg-slate-50 border border-slate-200 rounded-lg py-2.5 px-3 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none">
             <option value="">Select District</option>
-            <option value="1">Guntur</option>
-            <option value="2">Krishna</option>
-            <option value="3">Hyderabad</option>
+            {formData.state_id === "1" && (
+              <>
+                <option value="1">Guntur</option>
+                <option value="2">Krishna</option>
+              </>
+            )}
+            {formData.state_id === "2" && (
+              <option value="3">Hyderabad</option>
+            )}
           </select>
         </div>
         <div className="space-y-1.5">

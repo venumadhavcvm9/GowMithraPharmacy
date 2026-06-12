@@ -1,5 +1,5 @@
 import React from 'react';
-import { Send, CheckCircle } from 'lucide-react';
+import { Send, CheckCircle, AlertCircle } from 'lucide-react';
 
 interface DepositFormProps {
   depositAmount: string;
@@ -7,9 +7,10 @@ interface DepositFormProps {
   depositReason: string;
   setDepositReason: (val: string) => void;
   successMsg: string;
+  errorMsg?: string;
 }
 
-export function DepositForm({ depositAmount, setDepositAmount, depositReason, setDepositReason, successMsg }: DepositFormProps) {
+export function DepositForm({ depositAmount, setDepositAmount, depositReason, setDepositReason, successMsg, errorMsg }: DepositFormProps) {
   return (
     <div className="space-y-4">
       <div>
@@ -19,6 +20,11 @@ export function DepositForm({ depositAmount, setDepositAmount, depositReason, se
       {successMsg && (
         <div className="bg-emerald-50 text-emerald-700 p-3 rounded-xl border border-emerald-100 font-semibold text-xs flex items-center gap-1.5">
           <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" /> {successMsg}
+        </div>
+      )}
+      {errorMsg && (
+        <div className="bg-red-50 text-red-700 p-3 rounded-xl border border-red-100 font-semibold text-xs flex items-center gap-1.5">
+          <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0" /> {errorMsg}
         </div>
       )}
       <div className="space-y-1.5 text-xs font-semibold">

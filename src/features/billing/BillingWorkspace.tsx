@@ -6,6 +6,7 @@ import { MedicineCatalog } from './components/MedicineCatalog';
 import { CartSidebar } from './components/CartSidebar';
 import { InvoiceModal } from './components/InvoiceModal';
 import { UpiModal } from './components/UpiModal';
+import { LowStockAlert } from './components/LowStockAlert';
 
 interface BillingWorkspaceProps {
   products: Product[];
@@ -20,12 +21,13 @@ interface BillingWorkspaceProps {
 export default function BillingWorkspace({
   products, setProducts, customers, setCustomers, sales, setSales, onNavigateToRegister
 }: BillingWorkspaceProps) {
-  
+
   const billing = useBillingCart(products, setProducts, customers, setCustomers, sales, setSales);
 
   return (
     <div id="billing-workspace-grid" className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
       <div className="lg:col-span-7 space-y-6">
+        <LowStockAlert products={products} />
         <CustomerLookup
           phoneSearch={billing.phoneSearch}
           setPhoneSearch={billing.setPhoneSearch}

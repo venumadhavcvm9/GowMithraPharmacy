@@ -16,7 +16,7 @@ export interface Customer {
   phone: string; // Mapped from mobile
   email: string;
   outstandingBalance: number;
-  
+
   // Backend Mapping Fields
   full_name?: string;
   mobile?: string;

@@ -58,9 +58,9 @@ export default function Login({ onLoginSuccess }: LoginProps) {
             {!isLoading && <ArrowRight className="w-4 h-4" />}
           </button>
         </form>
-        <div className="mt-6 text-center">
+        {/* <div className="mt-6 text-center">
           <a href="#" className="text-sm font-semibold text-[#10B981] hover:text-[#059669]">Forgot Password?</a>
-        </div>
+        </div> */}
       </div>
     </div>
   );
