@@ -38,7 +38,7 @@ export function useCheckout(
         customerName: payload.customerName, customerPhone: payload.customerPhone,
         items: payload.items, total: payload.total,
         paymentMode: payload.paymentMode as 'Cash' | 'UPI',
-        timestamp: new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })
+        timestamp: new Date().toLocaleString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })
       };
 
       setProducts(prev => prev.map(p => {

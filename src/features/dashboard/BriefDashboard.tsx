@@ -3,7 +3,7 @@ import { ArrowRight } from 'lucide-react';
 import { Sale, Product, Customer } from '../../types';
 import { KpiCardsGrid } from './components/KpiCardsGrid';
 import { SalesVelocityChart } from './components/SalesVelocityChart';
-import { CreditLogAccounts } from './components/CreditLogAccounts';
+
 
 interface BriefDashboardProps {
   sales: Sale[];
@@ -18,8 +18,33 @@ export default function BriefDashboard({ sales, products, customers, setActiveTa
   const upiSalesVal = sales.filter(s => s.paymentMode === 'UPI').reduce((acc, s) => acc + s.total, 0);
   const outstandingBal = customers.reduce((acc, c) => acc + c.outstandingBalance, 0);
 
-  const recentDaysSales = [320, 410, 290, 580, 490, totalSalesVal];
-  const maxDaySales = Math.max(...recentDaysSales, 1);
+  const last7Days = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - (6 - i));
+    return d;
+  });
+
+  const chartData = last7Days.map((date, idx) => {
+    const daySales = sales.filter(s => {
+      const sDate = new Date(s.timestamp);
+      if (isNaN(sDate.getTime())) return false;
+      
+      // Fix for previously generated sales that lacked a year and parsed as 2001
+      if (sDate.getFullYear() === 2001 && !s.timestamp.includes('2001')) {
+        sDate.setFullYear(new Date().getFullYear());
+      }
+      
+      return sDate.getFullYear() === date.getFullYear() &&
+             sDate.getMonth() === date.getMonth() &&
+             sDate.getDate() === date.getDate();
+    });
+    
+    const total = daySales.reduce((acc, sale) => acc + sale.total, 0);
+    return {
+      name: idx === 6 ? 'Today' : date.toLocaleDateString('en-US', { weekday: 'short' }),
+      sales: total
+    };
+  });
 
   return (
     <div id="dashboard-tab" className="space-y-6">
@@ -35,9 +60,8 @@ export default function BriefDashboard({ sales, products, customers, setActiveTa
 
       <KpiCardsGrid totalSalesVal={totalSalesVal} cashSalesVal={cashSalesVal} upiSalesVal={upiSalesVal} salesCount={sales.length} />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <SalesVelocityChart recentDaysSales={recentDaysSales} maxDaySales={maxDaySales} />
-        <CreditLogAccounts customers={customers} outstandingBal={outstandingBal} setActiveTab={setActiveTab} />
+      <div>
+        <SalesVelocityChart data={chartData} />
       </div>
     </div>
   );
