@@ -7,6 +7,7 @@ import { CartSidebar } from './components/CartSidebar';
 import { InvoiceModal } from './components/InvoiceModal';
 import { UpiModal } from './components/UpiModal';
 import { LowStockAlert } from './components/LowStockAlert';
+import { CashConfirmModal } from './components/CashConfirmModal';
 
 interface BillingWorkspaceProps {
   products: Product[];
@@ -73,6 +74,16 @@ export default function BillingWorkspace({
         isOpen={billing.isUpiModalOpen}
         onClose={() => billing.setIsUpiModalOpen(false)}
         onSuccess={billing.finalizeCheckout}
+        amount={billing.grandTotal + (billing.selectedCustomer && billing.selectedCustomer.outstandingBalance > 0 ? billing.selectedCustomer.outstandingBalance : 0)}
+      />
+
+      <CashConfirmModal
+        isOpen={billing.isCashModalOpen}
+        onClose={() => {
+          billing.setIsCashModalOpen(false);
+          billing.handleResetWorkspace();
+        }}
+        onConfirm={billing.finalizeCheckout}
         amount={billing.grandTotal + (billing.selectedCustomer && billing.selectedCustomer.outstandingBalance > 0 ? billing.selectedCustomer.outstandingBalance : 0)}
       />
     </div>

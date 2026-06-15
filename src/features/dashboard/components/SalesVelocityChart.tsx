@@ -28,7 +28,7 @@ export function SalesVelocityChart({ data }: SalesVelocityChartProps) {
         <p className="text-xs text-slate-400 font-medium">Displaying aggregated payments trend (Last 7 Days)</p>
       </div>
       <div className="h-64 mt-6 w-full -ml-4">
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
           <BarChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
             <XAxis 

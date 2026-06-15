@@ -7,6 +7,8 @@ interface LocationDetailsProps {
 }
 
 export function LocationDetails({ formData, handleChange }: LocationDetailsProps) {
+  const isLocationSelected = Boolean(formData.state_id && formData.district_id);
+
   return (
     <section>
       <div className="flex items-center gap-2 mb-6">
@@ -39,26 +41,38 @@ export function LocationDetails({ formData, handleChange }: LocationDetailsProps
         </div>
         <div className="space-y-1.5">
           <label className="text-xs font-semibold text-slate-500 uppercase">Constituency</label>
-          <select name="constituency_id" value={formData.constituency_id} onChange={handleChange} required className="w-full bg-slate-50 border border-slate-200 rounded-lg py-2.5 px-3 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none">
-            <option value="">Select</option>
-            <option value="1">Constituency A</option>
-            <option value="2">Constituency B</option>
+          <select name="constituency_id" value={formData.constituency_id} onChange={handleChange} required disabled={!isLocationSelected} className="w-full bg-slate-50 border border-slate-200 rounded-lg py-2.5 px-3 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none disabled:opacity-60 disabled:cursor-not-allowed">
+            <option value="">Select Constituency</option>
+            {isLocationSelected && (
+              <>
+                <option value="1">Constituency A</option>
+                <option value="2">Constituency B</option>
+              </>
+            )}
           </select>
         </div>
         <div className="space-y-1.5">
           <label className="text-xs font-semibold text-slate-500 uppercase">Mandal</label>
-          <select name="mandal_id" value={formData.mandal_id} onChange={handleChange} required className="w-full bg-slate-50 border border-slate-200 rounded-lg py-2.5 px-3 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none">
+          <select name="mandal_id" value={formData.mandal_id} onChange={handleChange} required disabled={!isLocationSelected} className="w-full bg-slate-50 border border-slate-200 rounded-lg py-2.5 px-3 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none disabled:opacity-60 disabled:cursor-not-allowed">
             <option value="">Select Mandal</option>
-            <option value="1">Mandal X</option>
-            <option value="2">Mandal Y</option>
+            {isLocationSelected && (
+              <>
+                <option value="1">Mandal X</option>
+                <option value="2">Mandal Y</option>
+              </>
+            )}
           </select>
         </div>
         <div className="space-y-1.5 md:col-span-2">
           <label className="text-xs font-semibold text-slate-500 uppercase">Village</label>
-          <select name="village_id" value={formData.village_id} onChange={handleChange} required className="w-full bg-slate-50 border border-slate-200 rounded-lg py-2.5 px-3 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none">
+          <select name="village_id" value={formData.village_id} onChange={handleChange} required disabled={!isLocationSelected} className="w-full bg-slate-50 border border-slate-200 rounded-lg py-2.5 px-3 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none disabled:opacity-60 disabled:cursor-not-allowed">
             <option value="">Select Village</option>
-            <option value="1">Village 1</option>
-            <option value="2">Village 2</option>
+            {isLocationSelected && (
+              <>
+                <option value="1">Village 1</option>
+                <option value="2">Village 2</option>
+              </>
+            )}
           </select>
         </div>
       </div>

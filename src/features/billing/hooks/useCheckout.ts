@@ -13,6 +13,7 @@ export function useCheckout(
   const [checkedOutSale, setCheckedOutSale] = useState<Sale | null>(null);
   const [isInvoiceOpen, setIsInvoiceOpen] = useState(false);
   const [isUpiModalOpen, setIsUpiModalOpen] = useState(false);
+  const [isCashModalOpen, setIsCashModalOpen] = useState(false);
 
   const subtotal = cart.reduce((val, i) => val + (i.product.price * i.quantity), 0);
   const grandTotal = subtotal;
@@ -62,8 +63,16 @@ export function useCheckout(
   const handleCheckout = () => {
     if (cart.length === 0) return alert('Your billing counter is empty! Please add products before checking out.');
     if (paymentMode === 'UPI') setIsUpiModalOpen(true);
-    else finalizeCheckout();
+    else setIsCashModalOpen(true);
   };
 
-  return { paymentMode, setPaymentMode, checkedOutSale, isInvoiceOpen, setIsInvoiceOpen, isUpiModalOpen, setIsUpiModalOpen, subtotal, grandTotal, finalizeCheckout, handleCheckout };
+  return { 
+    paymentMode, setPaymentMode, 
+    checkedOutSale, 
+    isInvoiceOpen, setIsInvoiceOpen, 
+    isUpiModalOpen, setIsUpiModalOpen, 
+    isCashModalOpen, setIsCashModalOpen, 
+    subtotal, grandTotal, 
+    finalizeCheckout, handleCheckout 
+  };
 }

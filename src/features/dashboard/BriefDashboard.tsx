@@ -28,17 +28,17 @@ export default function BriefDashboard({ sales, products, customers, setActiveTa
     const daySales = sales.filter(s => {
       const sDate = new Date(s.timestamp);
       if (isNaN(sDate.getTime())) return false;
-      
+
       // Fix for previously generated sales that lacked a year and parsed as 2001
       if (sDate.getFullYear() === 2001 && !s.timestamp.includes('2001')) {
         sDate.setFullYear(new Date().getFullYear());
       }
-      
+
       return sDate.getFullYear() === date.getFullYear() &&
-             sDate.getMonth() === date.getMonth() &&
-             sDate.getDate() === date.getDate();
+        sDate.getMonth() === date.getMonth() &&
+        sDate.getDate() === date.getDate();
     });
-    
+
     const total = daySales.reduce((acc, sale) => acc + sale.total, 0);
     return {
       name: idx === 6 ? 'Today' : date.toLocaleDateString('en-US', { weekday: 'short' }),

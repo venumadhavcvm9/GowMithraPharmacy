@@ -7,7 +7,7 @@ interface LowStockAlertProps {
 }
 
 export function LowStockAlert({ products }: LowStockAlertProps) {
-  const lowStockProducts = products.filter(p => p.stock < 20 && p.stock > 0);
+  const lowStockProducts = products.filter(p => p.stock < 130 && p.stock > 0);
   const outOfStockProducts = products.filter(p => p.stock <= 0);
 
   const totalLowOrEmpty = lowStockProducts.length + outOfStockProducts.length;
