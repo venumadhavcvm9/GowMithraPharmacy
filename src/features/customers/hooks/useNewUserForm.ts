@@ -21,6 +21,13 @@ export function useNewUserForm(customers: Customer[], setCustomers: React.Dispat
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target as any;
+
+    if (name === 'mobile') {
+      const sanitizedValue = value.replace(/\D/g, '').slice(0, 10);
+      setFormData(prev => ({ ...prev, [name]: sanitizedValue }));
+      return;
+    }
+
     const checked = type === 'checkbox' ? (e.target as HTMLInputElement).checked : undefined;
     setFormData(prev => {
       const updates: any = { [name]: type === 'checkbox' ? checked : value };
@@ -34,6 +41,7 @@ export function useNewUserForm(customers: Customer[], setCustomers: React.Dispat
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.full_name || !formData.mobile) return alert('Name & Mobile are required.');
+    if (formData.mobile.length !== 10) return alert('Mobile number must be exactly 10 digits.');
 
     const checkExisting = customers.find(c => c.phone === formData.mobile.trim());
     if (checkExisting) return alert('A user with this mobile number already exists locally!');
@@ -52,7 +60,7 @@ export function useNewUserForm(customers: Customer[], setCustomers: React.Dispat
 
       setCustomers(prev => [...prev, newCust]);
       setSuccess(`Customer profile for "${formData.full_name}" created successfully.`);
-      
+
       setFormData({
         full_name: '', mobile: '', password: '', state_id: '', district_id: '',
         mandal_id: '', constituency_id: '', village_id: '', address: '',

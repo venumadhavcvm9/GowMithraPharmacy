@@ -31,23 +31,23 @@ export function SalesVelocityChart({ data }: SalesVelocityChartProps) {
         <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
           <BarChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-            <XAxis 
-              dataKey="name" 
-              axisLine={false} 
-              tickLine={false} 
+            <XAxis
+              dataKey="name"
+              axisLine={false}
+              tickLine={false}
               tick={{ fontSize: 11, fill: '#94a3b8', fontWeight: 600 }}
               dy={10}
             />
-            <YAxis 
-              axisLine={false} 
-              tickLine={false} 
+            <YAxis
+              axisLine={false}
+              tickLine={false}
               tick={{ fontSize: 11, fill: '#94a3b8', fontWeight: 600 }}
               tickFormatter={(value) => `₹${value}`}
             />
             <Tooltip content={<CustomTooltip />} cursor={{ fill: '#f8fafc' }} />
-            <Bar 
-              dataKey="sales" 
-              fill="#10b981" 
+            <Bar
+              dataKey="sales"
+              fill="#10b981"
               radius={[4, 4, 0, 0]}
               barSize={32}
             />

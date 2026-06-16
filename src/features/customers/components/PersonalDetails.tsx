@@ -24,7 +24,7 @@ export function PersonalDetails({ formData, handleChange }: PersonalDetailsProps
           <label className="text-sm font-semibold text-slate-700">Mobile Number <span className="text-red-500">*</span></label>
           <div className="relative">
             <div className="absolute left-3 top-2.5 text-slate-400"><Phone className="w-4 h-4" /></div>
-            <input type="tel" name="mobile" value={formData.mobile} onChange={handleChange} placeholder="e.g. 9876543210" required className="w-full bg-slate-50 border border-slate-200 rounded-lg py-2.5 pl-9 pr-3 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none" />
+            <input type="tel" name="mobile" value={formData.mobile} onChange={handleChange} placeholder="e.g. 9876543210" required pattern="[0-9]{10}" maxLength={10} minLength={10} title="Mobile number must be exactly 10 digits" className="w-full bg-slate-50 border border-slate-200 rounded-lg py-2.5 pl-9 pr-3 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none" />
           </div>
         </div>
         <div className="space-y-1.5">
